@@ -104,16 +104,17 @@
     background-image:url('clipper-hero.webp');
     background-size:cover;
     background-position:center 65%;
-    filter:grayscale(1) contrast(1.05);
+    filter:grayscale(1) contrast(1.1) brightness(0.75);
   }
   .hero-overlay{
     position:absolute; inset:0;
     background:linear-gradient(
       to bottom,
-      rgba(12,12,12,0.95) 0%,
-      rgba(12,12,12,0.55) 26%,
-      rgba(12,12,12,0.30) 48%,
-      rgba(12,12,12,0.55) 70%,
+      rgba(2,2,2,0.97) 0%,
+      rgba(2,2,2,0.82) 28%,
+      rgba(2,2,2,0.58) 52%,
+      rgba(2,2,2,0.40) 70%,
+      rgba(2,2,2,0.88) 90%,
       var(--bg) 100%
     );
   }
@@ -158,8 +159,8 @@
   }
   .booker::after{
     content:"";
-    position:absolute; top:-18px; right:28px;
-    width:46px; height:54px;
+    position:absolute; top:-19px; right:28px;
+    width:50px; height:50px;
     border:1px solid var(--line-strong);
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
     pointer-events:none;
@@ -180,7 +181,7 @@
   }
   .step-label .n{
     font-family:'JetBrains Mono'; font-size:0.66rem; color:var(--muted);
-    width:24px; height:26px; flex:none;
+    width:26px; height:26px; flex:none;
     display:flex; align-items:center; justify-content:center;
     border:1px solid var(--line-strong);
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
@@ -220,6 +221,7 @@
     }
   }
   .day-box{
+    position:relative;
     background:var(--bg);
     border:1px solid var(--line);
     padding:10px 6px;
@@ -233,6 +235,12 @@
   .day-box:hover{ border-color:var(--accent-dim); cursor:pointer; }
   .day-box.selected{
     background:var(--accent); border-color:var(--accent); color:var(--bg);
+  }
+  .day-box.selected::after{
+    content:"";
+    position:absolute; top:6px; right:6px;
+    width:8px; height:8px;
+    background:var(--bg);
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
   }
   .day-box.selected .wd, .day-box.selected .mo{ color:rgba(12,12,12,0.65); }
@@ -247,6 +255,7 @@
     display:flex; flex-wrap:wrap; gap:8px;
   }
   .pill{
+    position:relative;
     font-family:'JetBrains Mono'; font-size:0.82rem;
     padding:9px 13px;
     border:1px solid var(--line);
@@ -257,7 +266,15 @@
   .pill:hover:not(.taken){ border-color:var(--accent-dim); cursor:pointer; }
   .pill.selected{
     background:var(--accent); border-color:var(--accent); color:var(--bg);
-    clip-path: polygon(12% 3%, 88% 3%, 100% 50%, 88% 97%, 12% 97%, 0% 50%);
+    padding-right:26px;
+  }
+  .pill.selected::after{
+    content:"";
+    position:absolute; top:50%; right:10px;
+    width:7px; height:7px;
+    background:var(--bg);
+    transform:translateY(-50%);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
   }
   .pill.taken{ opacity:0.28; text-decoration:line-through; cursor:not-allowed; }
 
@@ -368,10 +385,10 @@
   }
   @media(min-width:860px){ .space-grid{ grid-template-columns:0.85fr 1.15fr; gap:48px; } }
   .space-photo{
-    width:100%; aspect-ratio:3/4; object-fit:cover;
+    width:100%; aspect-ratio:1/1; object-fit:cover;
     filter:grayscale(1) contrast(1.05);
     justify-self:center;
-    max-width:340px;
+    max-width:320px;
   }
   .space-copy p{ color:var(--muted); font-size:1rem; max-width:44ch; line-height:1.7; }
 
@@ -667,7 +684,7 @@
   var ICONS = {
     corte: '<svg '+ICON_ATTRS+'><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><line x1="8.3" y1="7.6" x2="20" y2="19.5"/><line x1="8.3" y1="16.4" x2="20" y2="4.5"/></svg>',
     barba: '<svg '+ICON_ATTRS+'><path d="M4 15 L15 4 L18 7 L9 18 Z"/><line x1="6" y1="17" x2="3" y2="20.5"/></svg>',
-    corte_barba: '<svg '+ICON_ATTRS+'><line x1="4" y1="6" x2="20" y2="6"/><line x1="6" y1="6" x2="6" y2="17"/><line x1="9.5" y1="6" x2="9.5" y2="15"/><line x1="13" y1="6" x2="13" y2="17"/><line x1="16.5" y1="6" x2="16.5" y2="15"/><line x1="20" y1="6" x2="20" y2="17"/></svg>',
+    corte_barba: '<svg '+ICON_ATTRS+'><rect x="3.5" y="4" width="17" height="3.5" rx="1.2"/><line x1="5.5" y1="7.5" x2="5.5" y2="18.5"/><line x1="8.5" y1="7.5" x2="8.5" y2="16"/><line x1="11.5" y1="7.5" x2="11.5" y2="18.5"/><line x1="14.5" y1="7.5" x2="14.5" y2="16"/><line x1="17.5" y1="7.5" x2="17.5" y2="18.5"/></svg>',
     facial: '<svg '+ICON_ATTRS+'><path d="M12 3 C12 3 6 12 6 16 A6 6 0 0 0 18 16 C18 12 12 3 12 3 Z"/></svg>',
     clipper: '<svg '+ICON_ATTRS+'><line x1="10.5" y1="2.5" x2="10.5" y2="0.6"/><line x1="12" y1="2.5" x2="12" y2="0.6"/><line x1="13.5" y1="2.5" x2="13.5" y2="0.6"/><rect x="9" y="2.5" width="6" height="4.5" rx="0.8"/><rect x="8" y="7" width="8" height="12.5" rx="1.6"/><circle cx="12" cy="16.5" r="1"/></svg>'
   };
