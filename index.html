@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es" class="js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clipper Barber Studio — Reserva tu cita en Ensenada</title>
+<meta name="description" content="Clipper Barber Studio. Precisión, estilo y confianza. Reserva tu corte en Ensenada, Baja California.">
+<link rel="icon" href="clipper-logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c0c;
+    --surface:#161616;
+    --surface-2:#1f1f1f;
+    --ink:#f5f5f3;
+    --muted:#9a9793;
+    --muted-2:#6b6864;
+    --accent:#ffffff;
+    --accent-dim:#c9c7c3;
+    --line:rgba(255,255,255,0.12);
+    --line-strong:rgba(255,255,255,0.24);
+    --radius-clip:14px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; overflow-x:hidden; max-width:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-weight:400;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    max-width:100%;
+  }
+  ::selection{background:var(--accent); color:#0c0c0c;}
+
+  h1,h2,h3,.display{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+    font-weight:600;
+    line-height:1.05;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  img{max-width:100%; display:block;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* clipped-corner motif — a literal "snip" out of the top-right corner,
+     used sparingly on interactive surfaces to echo the shop's name */
+  .clip{
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  }
+  .clip-sm{
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+
+  /* hexagon motif — pulled straight from the shop's own mark and ceiling lights */
+  .hex{
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  }
+  .hex-bullet{
+    width:7px; height:7px; flex:none;
+    background:var(--ink);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+    display:inline-block;
+  }
+
+  /* ---------- focus ---------- */
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  html.js .reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1; transform:none; transition:none;}
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px;
+    font-size:0.85rem; font-weight:600; letter-spacing:0.03em;
+    border:1px solid var(--line-strong);
+    background:transparent; color:var(--ink);
+    transition:border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  .btn:hover{border-color:var(--accent); transform:translateY(-1px);}
+  .btn-solid{
+    background:var(--ink); border-color:var(--ink);
+    color:var(--bg);
+  }
+  .btn-solid:hover{background:var(--accent-dim); border-color:var(--accent-dim);}
+  .btn svg{width:16px; height:16px; flex:none;}
+
+  /* ================= BRAND HERO (photo + logo, no menu) ================= */
+  .hero-brand{
+    position:relative;
+    min-height:88vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    overflow:hidden;
+    padding:32px 24px 64px;
+  }
+  .hero-bg{
+    position:absolute; inset:0;
+    background-image:url('clipper-hero.webp');
+    background-size:cover;
+    background-position:center 65%;
+    filter:grayscale(1) contrast(1.05);
+  }
+  .hero-overlay{
+    position:absolute; inset:0;
+    background:linear-gradient(
+      to bottom,
+      rgba(12,12,12,0.95) 0%,
+      rgba(12,12,12,0.55) 26%,
+      rgba(12,12,12,0.30) 48%,
+      rgba(12,12,12,0.55) 70%,
+      var(--bg) 100%
+    );
+  }
+  .hero-content{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; }
+  .hero-logo{ width:min(260px, 62vw); margin-bottom:22px; }
+  .hero-tagline{
+    font-family:'JetBrains Mono'; font-size:0.78rem; letter-spacing:0.28em;
+    color:var(--ink); text-transform:uppercase; margin-bottom:38px;
+  }
+  .scroll-cue{
+    display:inline-flex; flex-direction:column; align-items:center; gap:8px;
+    font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.16em;
+    color:var(--muted); text-transform:uppercase;
+  }
+  .scroll-cue .arrow{
+    width:1px; height:34px;
+    background:linear-gradient(to bottom, var(--ink), transparent);
+    animation:cueMove 1.8s ease-in-out infinite;
+  }
+  @keyframes cueMove{
+    0%,100%{ transform:translateY(0); opacity:1; }
+    50%{ transform:translateY(6px); opacity:0.4; }
+  }
+  @media (prefers-reduced-motion:reduce){ .scroll-cue .arrow{ animation:none; } }
+
+  /* ================= BOOKING ================= */
+  .booking-section{
+    padding-top:48px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-head{ margin-bottom:34px; max-width:640px; }
+  .eyebrow{
+    font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.24em;
+    color:var(--ink); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .hero-head h1{ font-size:clamp(2.1rem, 5vw, 3.2rem); margin-bottom:14px; }
+  .hero-head p.sub{ color:var(--muted); font-size:1.02rem; max-width:44ch; }
+
+  /* booking widget shell */
+  .booker{
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    padding:26px;
+    min-width:0;
+  }
+  .booker-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:26px;
+    min-width:0;
+  }
+  .booker-grid > div{ min-width:0; }
+  @media(min-width:900px){
+    .booker-grid{ grid-template-columns: 1.35fr 1fr; gap:32px; }
+  }
+
+  .step-label{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:14px;
+  }
+  .step-label .n{
+    font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--muted-2);
+  }
+  .step-label .t{
+    font-family:'Oswald'; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:0.92rem; font-weight:600; color:var(--ink);
+  }
+
+  /* --- calendar --- */
+  .month-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .month-row .month{ font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;}
+
+  .day-scroller{
+    display:grid;
+    grid-auto-flow:column;
+    grid-auto-columns:64px;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:6px;
+    scrollbar-width:thin;
+    max-width:100%;
+    touch-action:pan-x;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  @media(min-width:900px){
+    .day-scroller{
+      grid-auto-flow:row;
+      grid-template-columns:repeat(7, 1fr);
+      grid-auto-columns:unset;
+      overflow-x:visible;
+    }
+  }
+  .day-box{
+    background:var(--bg);
+    border:1px solid var(--line);
+    padding:10px 6px;
+    text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    transition:border-color .15s ease, background .15s ease, transform .15s ease;
+  }
+  .day-box .wd{ font-family:'JetBrains Mono'; font-size:0.62rem; color:var(--muted-2); letter-spacing:0.08em; text-transform:uppercase;}
+  .day-box .dn{ font-family:'Oswald'; font-size:1.3rem; font-weight:600; }
+  .day-box .mo{ font-family:'JetBrains Mono'; font-size:0.58rem; color:var(--muted-2); text-transform:uppercase;}
+  .day-box:hover{ border-color:var(--accent-dim); cursor:pointer; }
+  .day-box.selected{
+    background:var(--accent); border-color:var(--accent); color:var(--bg);
+  }
+  .day-box.selected .wd, .day-box.selected .mo{ color:rgba(12,12,12,0.65); }
+  .day-box.closed{ opacity:0.32; pointer-events:none; }
+
+  .hours-note{
+    margin-top:12px; font-size:0.78rem; color:var(--muted-2); font-family:'JetBrains Mono';
+  }
+
+  /* --- time pills --- */
+  .time-grid{
+    display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .pill{
+    font-family:'JetBrains Mono'; font-size:0.82rem;
+    padding:9px 13px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .pill:hover:not(.taken){ border-color:var(--accent-dim); cursor:pointer; }
+  .pill.selected{ background:var(--accent); border-color:var(--accent); color:var(--bg); }
+  .pill.taken{ opacity:0.28; text-decoration:line-through; cursor:not-allowed; }
+
+  /* --- services --- */
+  .svc-list{ display:flex; flex-direction:column; gap:8px; }
+  .svc{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    transition:border-color .15s ease;
+  }
+  .svc:hover{ border-color:var(--accent-dim); cursor:pointer; }
+  .svc.selected{ border-color:var(--accent); background:rgba(255,255,255,0.06); }
+  .svc-left{ display:flex; align-items:center; gap:12px; }
+  .guard{
+    width:30px; height:30px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2);
+    border:1px solid var(--line-strong);
+    font-family:'JetBrains Mono'; font-size:0.68rem; color:var(--ink);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  }
+  .svc-name{ font-size:0.94rem; font-weight:500; }
+  .svc-price{ font-family:'JetBrains Mono'; font-size:0.88rem; color:var(--muted); white-space:nowrap; }
+  .svc.selected .svc-price{ color:var(--ink); }
+
+  /* --- summary bar --- */
+  .summary{
+    margin-top:24px;
+    border-top:1px solid var(--line-strong);
+    padding-top:20px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .summary-text{ font-size:0.9rem; color:var(--muted); }
+  .summary-text b{ color:var(--ink); font-weight:600; }
+  .summary-text .price{ color:var(--ink); font-family:'JetBrains Mono'; }
+
+  .cta-book{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 24px;
+    background:var(--ink);
+    color:var(--bg);
+    font-family:'Oswald'; text-transform:uppercase; letter-spacing:0.05em; font-weight:600; font-size:0.92rem;
+    border:none;
+    transition:background .2s ease, transform .15s ease;
+  }
+  .cta-book:hover{ background:var(--accent-dim); transform:translateY(-1px); }
+  .cta-book:disabled{ background:var(--surface-2); color:var(--muted-2); cursor:not-allowed; transform:none; }
+  .cta-book svg{ width:18px; height:18px; }
+
+  .integration-note{
+    margin-top:14px;
+    font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--muted-2);
+    display:flex; align-items:center; gap:8px;
+  }
+  .integration-note .hex-bullet{ background:var(--muted-2); }
+
+  /* ================= SECTION HEADS ================= */
+  section{ padding:72px 0; }
+  .sec-head{ margin-bottom:38px; max-width:520px; }
+  .sec-head .eyebrow{ margin-bottom:10px; }
+  .sec-head h2{ font-size:clamp(1.6rem, 3.4vw, 2.2rem); }
+
+  /* ================= SERVICES/PRICING ================= */
+  .services-section{ border-bottom:1px solid var(--line); }
+  .price-list{
+    display:grid; grid-template-columns:1fr; gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  @media(min-width:720px){ .price-list{ grid-template-columns:1fr 1fr; } }
+  .price-row{
+    background:var(--bg);
+    padding:22px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .price-row .left{ display:flex; align-items:center; gap:14px; }
+  .price-row .guard{ width:38px; height:38px; font-size:0.78rem; }
+  .price-row .name{ font-family:'Oswald'; text-transform:uppercase; font-size:1.02rem; letter-spacing:0.02em; }
+  .price-row .amount{ font-family:'JetBrains Mono'; color:var(--ink); font-size:1.05rem; }
+  .price-row.featured{ background:rgba(255,255,255,0.05); }
+
+  .tagline-strip{
+    margin-top:44px;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  }
+  .tagline-strip span{
+    font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.14em;
+    color:var(--muted-2); text-transform:uppercase;
+    padding:8px 12px; border:1px solid var(--line);
+  }
+
+  /* ================= REVIEWS ================= */
+  .reviews-section{ border-bottom:1px solid var(--line); background:var(--surface); }
+  .review-grid{
+    display:grid; grid-template-columns:1fr; gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  @media(min-width:860px){ .review-grid{ grid-template-columns:repeat(3, 1fr); } }
+  .review-card{
+    background:var(--surface);
+    padding:26px 24px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .stars{ display:flex; gap:3px; }
+  .stars svg{ width:14px; height:14px; fill:var(--ink); }
+  .review-card p{ font-size:0.95rem; color:var(--ink); line-height:1.6; }
+  .review-card p.small{ font-size: 0.88rem; }
+
+  /* ================= SPACE / GALLERY ================= */
+  .space-section{ border-bottom:1px solid var(--line); }
+  .space-grid{
+    display:grid; grid-template-columns:1fr; gap:32px; align-items:center;
+  }
+  @media(min-width:860px){ .space-grid{ grid-template-columns:0.85fr 1.15fr; gap:48px; } }
+  .space-photo{
+    width:100%; aspect-ratio:3/4; object-fit:cover;
+    filter:grayscale(1) contrast(1.05);
+    justify-self:center;
+    max-width:340px;
+  }
+  .space-copy p{ color:var(--muted); font-size:1rem; max-width:44ch; line-height:1.7; }
+  .space-copy .tagline-strip{ margin-top:28px; }
+
+  /* ================= LOCATION ================= */
+  .loc-grid{
+    display:grid; grid-template-columns:1fr; gap:36px;
+  }
+  @media(min-width:900px){ .loc-grid{ grid-template-columns:1fr 1fr; } }
+  .loc-block h3{ font-size:0.78rem; letter-spacing:0.18em; color:var(--ink); margin-bottom:12px; font-family:'JetBrains Mono'; text-transform:uppercase; font-weight:500; }
+  .loc-block address{ font-style:normal; color:var(--ink); line-height:1.7; font-size:1rem; }
+  .loc-block .addr-link{ display:inline-block; margin-top:12px; color:var(--ink); font-size:0.88rem; border-bottom:1px solid var(--muted-2); }
+
+  .hours-table{ width:100%; border-collapse:collapse; }
+  .hours-table tr{ border-bottom:1px solid var(--line); }
+  .hours-table tr:last-child{ border-bottom:none; }
+  .hours-table td{ padding:10px 0; font-size:0.92rem; }
+  .hours-table td:first-child{ color:var(--muted); }
+  .hours-table td:last-child{ text-align:right; font-family:'JetBrains Mono'; font-size:0.86rem; }
+  .hours-table tr.today td{ color:var(--ink); }
+  .hours-table tr.today td:first-child{ font-weight:600; }
+
+  .contact-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+
+  /* ---- map ---- */
+  .map-block{ margin-top:44px; }
+  .map-frame{
+    width:100%; height:360px;
+    border:1px solid var(--line-strong);
+    filter:grayscale(1) contrast(1.1) brightness(0.9);
+  }
+
+  /* ================= FOOTER ================= */
+  footer{ padding:36px 0; border-top:1px solid var(--line); }
+  .foot-inner{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .foot-inner .fl{ font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--muted-2); letter-spacing:0.06em;}
+  .foot-links{ display:flex; gap:18px; }
+  .foot-links a{ font-size:0.82rem; color:var(--muted); }
+  .foot-links a:hover{ color:var(--ink); }
+
+  /* ================= FLOATING WHATSAPP ================= */
+  .float-wa{
+    position:fixed; bottom:20px; right:20px; z-index:60;
+    width:52px; height:52px;
+    background:#25D366;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+    transition:transform .15s ease;
+  }
+  .float-wa:hover{ transform:scale(1.06); }
+  .float-wa svg{ width:26px; height:26px; fill:#0e1a12; }
+</style>
+</head>
+<body>
+
+<main id="top">
+
+  <!-- ============ BRAND HERO — logo, foto del local, sin menú ============ -->
+  <section class="hero-brand">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <img src="clipper-logo.jpg" alt="Clipper Barber Studio" class="hero-logo">
+      <span class="hero-tagline">Precisión · Estilo · Confianza</span>
+      <a href="#reservar" class="scroll-cue">
+        <span>Reservar</span>
+        <span class="arrow"></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ BOOKING ============ -->
+  <section class="booking-section" id="reservar">
+    <div class="wrap">
+      <div class="hero-head reveal">
+        <span class="eyebrow"><span class="hex-bullet"></span>PRECISIÓN · ESTILO · CONFIANZA</span>
+        <h1>¿Cuándo puedes venir?</h1>
+        <p class="sub">Elige fecha, horario y servicio. Así de simple.</p>
+      </div>
+
+      <div class="booker clip reveal">
+        <div class="booker-grid">
+
+          <!-- LEFT: calendar -->
+          <div>
+            <div class="step-label">
+              <span class="n mono">01</span>
+              <span class="t">Elige fecha</span>
+            </div>
+            <div class="month-row">
+              <span class="month" id="monthLabel">—</span>
+              <span class="month" id="todayLabel">—</span>
+            </div>
+            <div class="day-scroller" id="dayScroller" role="listbox" aria-label="Selecciona un día"></div>
+            <p class="hours-note">Lun–Sáb 9:00 AM–7:00 PM · Dom 10:00 AM–5:00 PM</p>
+
+            <div style="margin-top:28px;">
+              <div class="step-label">
+                <span class="n mono">02</span>
+                <span class="t">Elige horario</span>
+              </div>
+              <div class="time-grid" id="timeGrid" role="listbox" aria-label="Selecciona un horario"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: services -->
+          <div>
+            <div class="step-label">
+              <span class="n mono">03</span>
+              <span class="t">Elige servicio</span>
+            </div>
+            <div class="svc-list" id="svcList" role="listbox" aria-label="Selecciona un servicio"></div>
+          </div>
+
+        </div>
+
+        <div class="summary">
+          <p class="summary-text" id="summaryText">Selecciona fecha, horario y servicio para continuar.</p>
+          <button class="cta-book" id="ctaBook" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
+            Confirmar por WhatsApp
+          </button>
+        </div>
+        <p class="integration-note"><span class="hex-bullet"></span>Disponibilidad de referencia — la agenda en vivo se conecta directo a Google Calendar y el cobro en línea al confirmar la integración de pagos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES / PRICING ============ -->
+  <section class="services-section">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow"><span class="hex-bullet"></span>LISTA DE PRECIOS</span>
+        <h2>Servicios</h2>
+      </div>
+
+      <div class="price-list reveal" id="priceList"></div>
+
+      <div class="tagline-strip reveal">
+        <span>Misma calidad</span>
+        <span>Nuevo espacio</span>
+        <span>Mejores vibras</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPACE ============ -->
+  <section class="space-section">
+    <div class="wrap">
+      <div class="space-grid reveal">
+        <img class="space-photo hex" src="clipper-interior.webp" alt="Interior de Clipper Barber Studio">
+        <div class="space-copy">
+          <span class="eyebrow"><span class="hex-bullet"></span>EL ESTUDIO</span>
+          <h2 style="margin-bottom:16px;">Mejores vibras, misma calidad</h2>
+          <p>El mismo equipo, el mismo cuidado en cada corte — ahora en un espacio pensado para que la espera se sienta tan bien como el resultado.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVIEWS ============ -->
+  <section class="reviews-section">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow"><span class="hex-bullet"></span>RESEÑAS</span>
+        <h2>Lo que dicen los clientes</h2>
+      </div>
+
+      <div class="review-grid reveal">
+        <div class="review-card">
+          <div class="stars">
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+          </div>
+          <p>La mejor barbería de Ensenada 💈🔥 Desde que marqué para agendar mi cita me atendieron súper rápido y con excelente servicio.</p>
+        </div>
+        <div class="review-card">
+          <div class="stars">
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+          </div>
+          <p class="small">Excelente recomendación para un corte de barba.</p>
+        </div>
+        <div class="review-card">
+          <div class="stars">
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+            <svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
+          </div>
+          <p>Cada uno de sus barberos han demostrado su habilidad desde estilos con pelo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LOCATION ============ -->
+  <section id="ubicacion">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow"><span class="hex-bullet"></span>UBICACIÓN Y HORARIO</span>
+        <h2>Encuéntranos</h2>
+      </div>
+
+      <div class="loc-grid reveal">
+        <div class="loc-block">
+          <h3>Dirección</h3>
+          <address>
+            Av. Delante 479 – Local 1<br>
+            Cuauhtémoc, 22890<br>
+            Ensenada, Baja California, México
+          </address>
+          <a class="addr-link" href="https://share.google/PzkHDY4pV1tRNR8oF" target="_blank" rel="noopener">Ver en Google Maps →</a>
+
+          <div class="contact-row">
+            <a class="btn btn-solid" href="https://wa.me/526465343804" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
+              WhatsApp
+            </a>
+            <a class="btn" href="tel:6465343804">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.7 3.6 4.9 6.3 6.3l2.1-2.1c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3c0-.6.4-1 1-1h3.6c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1.1L6.6 10.8Z"/></svg>
+              646 534 3804
+            </a>
+            <a class="btn" href="https://www.instagram.com/clipper_barberstudio" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.4.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.5.3 1.2.4 2.4.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.4-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.5.2-1.2.3-2.4.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.4-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.5-.3-1.2-.4-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.4.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.5-.2 1.2-.3 2.4-.4C8.4 2.2 8.8 2.2 12 2.2Zm0 1.8c-3.1 0-3.5 0-4.7.1-1 .1-1.6.2-1.9.3-.5.2-.8.4-1.2.8-.4.4-.6.7-.8 1.2-.1.3-.3.9-.3 1.9C3 9.5 3 9.9 3 13s0 3.5.1 4.7c.1 1 .2 1.6.3 1.9.2.5.4.8.8 1.2.4.4.7.6 1.2.8.3.1.9.3 1.9.3 1.2.1 1.5.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 1.9-.3.5-.2.8-.4 1.2-.8.4-.4.6-.7.8-1.2.1-.3.3-.9.3-1.9.1-1.2.1-1.5.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.3-1.9-.2-.5-.4-.8-.8-1.2-.4-.4-.7-.6-1.2-.8-.3-.1-.9-.3-1.9-.3-1.2-.1-1.5-.1-4.7-.1Zm0 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 1.8a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Zm5.7-1.9a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0Z"/></svg>
+              Instagram
+            </a>
+          </div>
+        </div>
+
+        <div class="loc-block">
+          <h3>Horario</h3>
+          <table class="hours-table" id="hoursTable"></table>
+        </div>
+      </div>
+
+      <div class="map-block reveal">
+        <iframe
+          class="map-frame"
+          src="https://www.google.com/maps?q=Clipper+Barber+Studio,+Av.+Delante+479,+Cuauht%C3%A9moc,+22890+Ensenada,+B.C.,+M%C3%A9xico&output=embed"
+          title="Clipper Barber Studio en Google Maps"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <span class="fl">CLIPPER BARBER STUDIO · ENSENADA, B.C.</span>
+    <div class="foot-links">
+      <a href="https://www.instagram.com/clipper_barberstudio" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://share.google/PzkHDY4pV1tRNR8oF" target="_blank" rel="noopener">Google</a>
+      <a href="tel:6465343804">646 534 3804</a>
+    </div>
+  </div>
+</footer>
+
+<a class="float-wa" href="https://wa.me/526465343804" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
+</a>
+
+<script>
+(function(){
+  var HOURS = {
+    // 0=domingo ... 6=sábado (JS getDay convention)
+    0:{open:10, close:17},
+    1:{open:9, close:19},
+    2:{open:9, close:19},
+    3:{open:9, close:19},
+    4:{open:9, close:19},
+    5:{open:9, close:19},
+    6:{open:9, close:19}
+  };
+  var WD = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+  var WD_FULL = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var MO = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+  var SERVICES = [
+    {id:'corte', name:'Corte', price:220, guard:'01'},
+    {id:'barba', name:'Barba', price:180, guard:'02'},
+    {id:'corte_barba', name:'Corte y Barba', price:350, guard:'03'},
+    {id:'facial', name:'Facial', price:300, guard:'04'},
+    {id:'clipper', name:'Servicio Clipper', price:580, guard:'05'}
+  ];
+
+  var state = { date:null, time:null, service:null };
+
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function dateKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+  // deterministic pseudo-random per date+hour so the mock availability is stable
+  function hash(str){
+    var h = 0;
+    for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+  function isTaken(dateStr, hourLabel){
+    var h = hash(dateStr+hourLabel);
+    return (h % 5) === 0; // ~20% de slots ya ocupados, look-and-feel de agenda real
+  }
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  // ---------- render days ----------
+  var dayScroller = document.getElementById('dayScroller');
+  var days = [];
+  for (var i=0; i<14; i++){
+    var d = new Date(today);
+    d.setDate(d.getDate()+i);
+    days.push(d);
+  }
+
+  function renderDays(){
+    dayScroller.innerHTML = '';
+    days.forEach(function(d, idx){
+      var btn = document.createElement('div');
+      btn.className = 'day-box' + (state.date && dateKey(state.date)===dateKey(d) ? ' selected' : '');
+      btn.setAttribute('role','option');
+      btn.setAttribute('tabindex','0');
+      btn.innerHTML =
+        '<span class="wd">'+WD[d.getDay()]+'</span>' +
+        '<span class="dn">'+d.getDate()+'</span>' +
+        '<span class="mo">'+MO[d.getMonth()]+'</span>';
+      btn.addEventListener('click', function(){ selectDate(d); });
+      btn.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectDate(d);} });
+      dayScroller.appendChild(btn);
+    });
+  }
+
+  function selectDate(d){
+    state.date = d;
+    state.time = null;
+    renderDays();
+    renderTimes();
+    updateSummary();
+  }
+
+  // ---------- render times ----------
+  var timeGrid = document.getElementById('timeGrid');
+  function renderTimes(){
+    timeGrid.innerHTML = '';
+    if (!state.date){
+      var hint = document.createElement('p');
+      hint.className = 'hours-note';
+      hint.textContent = 'Elige un día para ver horarios disponibles.';
+      timeGrid.appendChild(hint);
+      return;
+    }
+    var wd = state.date.getDay();
+    var h = HOURS[wd];
+    var dKey = dateKey(state.date);
+    var slots = [];
+    for (var hour=h.open; hour<h.close; hour++){
+      slots.push(hour+':00');
+      if (hour < h.close - 1) slots.push(hour+':30');
+    }
+    var isToday = dateKey(today)===dKey;
+    var nowHour = new Date().getHours();
+
+    slots.forEach(function(label){
+      var slotHour = parseInt(label.split(':')[0],10);
+      var past = isToday && slotHour <= nowHour;
+      var taken = isTaken(dKey, label) || past;
+      var pill = document.createElement('div');
+      pill.className = 'pill' + (taken ? ' taken' : '') + (state.time===label ? ' selected' : '');
+      pill.setAttribute('role','option');
+      pill.textContent = formatHour(label);
+      if (!taken){
+        pill.setAttribute('tabindex','0');
+        pill.addEventListener('click', function(){ selectTime(label); });
+        pill.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectTime(label);} });
+      }
+      pill.dataset.label = label;
+      timeGrid.appendChild(pill);
+    });
+  }
+  function formatHour(label){
+    var parts = label.split(':');
+    var h = parseInt(parts[0],10);
+    var m = parts[1];
+    var suffix = h>=12 ? 'PM' : 'AM';
+    var h12 = h%12===0 ? 12 : h%12;
+    return h12+':'+m+' '+suffix;
+  }
+  function selectTime(label){
+    state.time = label;
+    renderTimes();
+    updateSummary();
+  }
+
+  // ---------- render services ----------
+  var svcList = document.getElementById('svcList');
+  function renderServices(){
+    svcList.innerHTML = '';
+    SERVICES.forEach(function(s){
+      var row = document.createElement('div');
+      row.className = 'svc' + (state.service && state.service.id===s.id ? ' selected' : '');
+      row.setAttribute('role','option');
+      row.setAttribute('tabindex','0');
+      row.innerHTML =
+        '<span class="svc-left"><span class="guard mono">'+s.guard+'</span><span class="svc-name">'+s.name+'</span></span>' +
+        '<span class="svc-price">$'+s.price+' MXN</span>';
+      row.addEventListener('click', function(){ selectService(s); });
+      row.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectService(s);} });
+      svcList.appendChild(row);
+    });
+  }
+  function selectService(s){
+    state.service = s;
+    renderServices();
+    updateSummary();
+  }
+
+  // ---------- price list section ----------
+  var priceList = document.getElementById('priceList');
+  SERVICES.forEach(function(s, idx){
+    var row = document.createElement('div');
+    row.className = 'price-row' + (s.id==='clipper' ? ' featured' : '');
+    row.innerHTML =
+      '<span class="left"><span class="guard mono">'+s.guard+'</span><span class="name">'+s.name+'</span></span>' +
+      '<span class="amount">$'+s.price+' MXN</span>';
+    priceList.appendChild(row);
+  });
+
+  // ---------- hours table ----------
+  var hoursTable = document.getElementById('hoursTable');
+  var order = [1,2,3,4,5,6,0];
+  order.forEach(function(wd){
+    var h = HOURS[wd];
+    var tr = document.createElement('tr');
+    if (wd === today.getDay()) tr.className = 'today';
+    var label = formatHour(h.open+':00') + '–' + formatHour(h.close+':00');
+    tr.innerHTML = '<td>'+WD_FULL[wd]+'</td><td>'+label+'</td>';
+    hoursTable.appendChild(tr);
+  });
+
+  // ---------- summary + CTA ----------
+  var summaryText = document.getElementById('summaryText');
+  var ctaBook = document.getElementById('ctaBook');
+  var monthLabel = document.getElementById('monthLabel');
+  var todayLabel = document.getElementById('todayLabel');
+
+  function updateSummary(){
+    if (state.date && state.time && state.service){
+      var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
+      summaryText.innerHTML = '<b>'+state.service.name+'</b> · '+dStr+' · <b>'+formatHour(state.time)+'</b> · <span class="price">$'+state.service.price+' MXN</span>';
+      ctaBook.disabled = false;
+    } else {
+      var missing = [];
+      if (!state.date) missing.push('fecha');
+      if (!state.time) missing.push('horario');
+      if (!state.service) missing.push('servicio');
+      summaryText.textContent = 'Falta elegir: ' + missing.join(', ') + '.';
+      ctaBook.disabled = true;
+    }
+  }
+  function MO_FULL(i){
+    var names = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return names[i];
+  }
+
+  ctaBook.addEventListener('click', function(){
+    if (ctaBook.disabled) return;
+    var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
+    var msg = 'Hola, quiero reservar '+state.service.name+' el '+dStr+' a las '+formatHour(state.time)+'. ¿Confirman disponibilidad?';
+    var url = 'https://wa.me/526465343804?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  });
+
+  // month label
+  monthLabel.textContent = MO[today.getMonth()] + ' ' + today.getFullYear();
+  todayLabel.textContent = 'Próximos 14 días';
+
+  renderDays();
+  renderTimes();
+  renderServices();
+  updateSummary();
+  // default selection: today, if within hours; otherwise first open day
+  selectDate(days[0]);
+
+  // ---------- scroll reveal ----------
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting){ e.target.classList.add('in'); observer.unobserve(e.target); }
+    });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ observer.observe(el); });
+})();
+</script>
+</body>
+</html>
