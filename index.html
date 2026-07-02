@@ -94,6 +94,7 @@
   .hero-brand{
     position:relative;
     min-height:88vh;
+    min-height:88svh;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center;
     overflow:hidden;
@@ -119,7 +120,7 @@
     );
   }
   .hero-content{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; }
-  .hero-logo{ width:min(260px, 62vw); margin-bottom:48px; }
+  .hero-logo{ width:clamp(108px, 30vw, 190px); margin-bottom:40px; }
   .scroll-cue{
     display:inline-flex; flex-direction:column; align-items:center; gap:8px;
     font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.16em;
@@ -221,7 +222,6 @@
     }
   }
   .day-box{
-    position:relative;
     background:var(--bg);
     border:1px solid var(--line);
     padding:10px 6px;
@@ -235,12 +235,6 @@
   .day-box:hover{ border-color:var(--accent-dim); cursor:pointer; }
   .day-box.selected{
     background:var(--accent); border-color:var(--accent); color:var(--bg);
-  }
-  .day-box.selected::after{
-    content:"";
-    position:absolute; top:6px; right:6px;
-    width:8px; height:8px;
-    background:var(--bg);
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
   }
   .day-box.selected .wd, .day-box.selected .mo{ color:rgba(12,12,12,0.65); }
@@ -255,9 +249,8 @@
     display:flex; flex-wrap:wrap; gap:8px;
   }
   .pill{
-    position:relative;
     font-family:'JetBrains Mono'; font-size:0.82rem;
-    padding:9px 13px;
+    padding:11px 14px;
     border:1px solid var(--line);
     background:var(--bg);
     color:var(--ink);
@@ -266,15 +259,7 @@
   .pill:hover:not(.taken){ border-color:var(--accent-dim); cursor:pointer; }
   .pill.selected{
     background:var(--accent); border-color:var(--accent); color:var(--bg);
-    padding-right:26px;
-  }
-  .pill.selected::after{
-    content:"";
-    position:absolute; top:50%; right:10px;
-    width:7px; height:7px;
-    background:var(--bg);
-    transform:translateY(-50%);
-    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+    clip-path: polygon(12% 3%, 88% 3%, 100% 50%, 88% 97%, 12% 97%, 0% 50%);
   }
   .pill.taken{ opacity:0.28; text-decoration:line-through; cursor:not-allowed; }
 
@@ -533,7 +518,7 @@
   <section class="space-section">
     <div class="wrap">
       <div class="space-grid reveal">
-        <img class="space-photo hex" src="clipper-interior.webp" alt="Interior de Clipper Barber Studio">
+        <img class="space-photo hex" src="clipper-interior.webp" alt="Interior de Clipper Barber Studio" loading="lazy" decoding="async">
         <div class="space-copy">
           <span class="eyebrow"><span class="hex-bullet"></span>EL ESTUDIO</span>
           <h2 style="margin-bottom:16px;">Los mismos de siempre</h2>
