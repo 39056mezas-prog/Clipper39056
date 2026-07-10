@@ -1,0 +1,13 @@
+{
+  "name": "clipper-barber-studio-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API de disponibilidad y reservas de Clipper Barber Studio — conecta directo a Google Calendar.",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "googleapis": "^173.0.0",
+    "luxon": "^3.7.2"
+  }
+}

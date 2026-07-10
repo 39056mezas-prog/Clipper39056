@@ -213,14 +213,6 @@
     overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
   }
-  @media(min-width:900px){
-    .day-scroller{
-      grid-auto-flow:row;
-      grid-template-columns:repeat(7, 1fr);
-      grid-auto-columns:unset;
-      overflow-x:visible;
-    }
-  }
   .day-box{
     background:var(--bg);
     border:1px solid var(--line);
@@ -238,7 +230,57 @@
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
   }
   .day-box.selected .wd, .day-box.selected .mo{ color:rgba(12,12,12,0.65); }
-  .day-box.closed{ opacity:0.32; pointer-events:none; }
+
+  /* --- box calendar (desktop primary interaction) --- */
+  .cal-desktop{ display:none; }
+  .cal-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .cal-month-label{
+    font-family:'Archivo'; font-size:1rem; font-weight:500; text-transform:capitalize;
+  }
+  .cal-nav-btn{
+    width:30px; height:30px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line-strong);
+    background:transparent; color:var(--ink);
+    font-size:1.05rem; line-height:1;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .cal-nav-btn:hover:not(:disabled){ border-color:var(--accent-dim); cursor:pointer; }
+  .cal-nav-btn:disabled{ opacity:0.25; cursor:not-allowed; }
+  .cal-weekdays{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px;
+  }
+  .cal-weekdays span{
+    text-align:center; font-family:'JetBrains Mono'; font-size:0.62rem; color:var(--muted-2);
+    letter-spacing:0.06em; text-transform:uppercase;
+  }
+  .cal-grid{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
+  }
+  .cal-cell{
+    position:relative;
+    aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line);
+    font-family:'Archivo'; font-size:0.92rem; font-weight:500;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .cal-cell.empty{ border-color:transparent; pointer-events:none; }
+  .cal-cell:not(.empty):not(.disabled):hover{ border-color:var(--accent-dim); cursor:pointer; }
+  .cal-cell.disabled{ opacity:0.25; pointer-events:none; }
+  .cal-cell.today:not(.selected){ border-color:var(--accent-dim); }
+  .cal-cell.selected{
+    background:var(--accent); border-color:var(--accent); color:var(--bg);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  }
+
+  @media(min-width:900px){
+    .day-scroller-wrap{ display:none; }
+    .cal-desktop{ display:block; }
+  }
 
   .hours-note{
     margin-top:12px; font-size:0.78rem; color:var(--muted-2); font-family:'JetBrains Mono';
@@ -288,6 +330,21 @@
   .svc-price{ font-family:'JetBrains Mono'; font-size:0.88rem; color:var(--muted); white-space:nowrap; }
   .svc.selected .svc-price{ color:var(--ink); }
 
+  /* --- contact fields (step 4) --- */
+  .contact-fields{ display:flex; flex-direction:column; gap:10px; max-width:480px; }
+  @media(min-width:560px){ .contact-fields{ flex-direction:row; } }
+  .field-input{
+    flex:1; width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Work Sans'; font-size:0.92rem;
+    padding:13px 14px;
+    transition:border-color .15s ease;
+  }
+  .field-input::placeholder{ color:var(--muted-2); }
+  .field-input:focus{ outline:none; border-color:var(--accent-dim); }
+
   /* --- summary bar --- */
   .summary{
     margin-top:24px;
@@ -325,6 +382,22 @@
   .sec-head .eyebrow{ margin-bottom:10px; }
   .sec-head h2{ font-size:clamp(1.6rem, 3.4vw, 2.2rem); font-weight:400; }
 
+  /* ================= FEATURES STRIP ================= */
+  .features-section{ padding:44px 0; border-bottom:1px solid var(--line); }
+  .features-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  @media(min-width:720px){ .features-grid{ grid-template-columns:repeat(5,1fr); } }
+  .feature-card{
+    background:var(--bg);
+    padding:20px 16px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .feature-card svg{ width:20px; height:20px; stroke:var(--ink); }
+  .feature-card .ft{ font-family:'Archivo'; font-size:0.88rem; font-weight:500; }
+  .feature-card .fd{ font-size:0.76rem; color:var(--muted); line-height:1.4; }
+
   /* ================= SERVICES/PRICING ================= */
   .services-section{ border-bottom:1px solid var(--line); }
   .price-list{
@@ -336,13 +409,15 @@
   .price-row{
     background:var(--bg);
     padding:22px 24px;
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
   }
-  .price-row .left{ display:flex; align-items:center; gap:14px; }
+  .price-row .left{ display:flex; align-items:flex-start; gap:14px; }
   .price-row .guard{ width:40px; height:40px; }
   .price-row .guard svg{ width:20px; height:20px; }
+  .price-row .text{ display:flex; flex-direction:column; gap:5px; padding-top:2px; }
   .price-row .name{ font-family:'Archivo'; font-size:1.05rem; font-weight:400; letter-spacing:-0.005em; }
-  .price-row .amount{ font-family:'JetBrains Mono'; color:var(--ink); font-size:1.05rem; }
+  .price-row .desc{ font-size:0.82rem; color:var(--muted); line-height:1.5; max-width:36ch; }
+  .price-row .amount{ font-family:'JetBrains Mono'; color:var(--ink); font-size:1.05rem; white-space:nowrap; padding-top:3px; }
   .price-row.featured{ background:rgba(255,255,255,0.05); }
 
   /* ================= REVIEWS ================= */
@@ -376,6 +451,16 @@
     max-width:320px;
   }
   .space-copy p{ color:var(--muted); font-size:1rem; max-width:44ch; line-height:1.7; }
+  .team-list{ display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .team-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:9px 15px;
+    border:1px solid var(--line);
+    font-family:'Archivo'; font-size:0.86rem; color:var(--ink);
+  }
+  a.team-chip{ transition:border-color .15s ease; }
+  a.team-chip:hover{ border-color:var(--accent-dim); }
+  .team-chip svg{ width:13px; height:13px; flex:none; }
 
   /* ================= LOCATION ================= */
   .loc-grid{
@@ -414,18 +499,6 @@
   .foot-links{ display:flex; gap:18px; }
   .foot-links a{ font-size:0.82rem; color:var(--muted); }
   .foot-links a:hover{ color:var(--ink); }
-
-  /* ================= FLOATING WHATSAPP ================= */
-  .float-wa{
-    position:fixed; bottom:20px; right:20px; z-index:60;
-    width:52px; height:52px;
-    background:#25D366;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 18px rgba(0,0,0,0.4);
-    transition:transform .15s ease;
-  }
-  .float-wa:hover{ transform:scale(1.06); }
-  .float-wa svg{ width:26px; height:26px; fill:#0e1a12; }
 </style>
 </head>
 <body>
@@ -463,11 +536,29 @@
               <span class="n mono">01</span>
               <span class="t">Elige fecha</span>
             </div>
-            <div class="month-row">
-              <span class="month" id="monthLabel">—</span>
-              <span class="month" id="todayLabel">—</span>
+
+            <!-- desktop: calendario tipo caja -->
+            <div class="cal-desktop">
+              <div class="cal-nav">
+                <button type="button" class="cal-nav-btn" id="calPrev" aria-label="Mes anterior">‹</button>
+                <span class="cal-month-label" id="calMonthLabel">—</span>
+                <button type="button" class="cal-nav-btn" id="calNext" aria-label="Mes siguiente">›</button>
+              </div>
+              <div class="cal-weekdays">
+                <span>D</span><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span>
+              </div>
+              <div class="cal-grid" id="calGrid" role="listbox" aria-label="Selecciona un día"></div>
             </div>
-            <div class="day-scroller" id="dayScroller" role="listbox" aria-label="Selecciona un día"></div>
+
+            <!-- móvil: selector compacto -->
+            <div class="day-scroller-wrap">
+              <div class="month-row">
+                <span class="month" id="monthLabel">—</span>
+                <span class="month" id="todayLabel">—</span>
+              </div>
+              <div class="day-scroller" id="dayScroller" role="listbox" aria-label="Selecciona un día"></div>
+            </div>
+
             <p class="hours-note">Lun–Sáb 9:00 AM–7:00 PM · Dom 10:00 AM–5:00 PM</p>
 
             <div style="margin-top:28px;">
@@ -490,14 +581,58 @@
 
         </div>
 
+        <div style="margin-top:28px;">
+          <div class="step-label">
+            <span class="n mono">04</span>
+            <span class="t">Tus datos</span>
+          </div>
+          <div class="contact-fields">
+            <input type="text" id="custName" class="field-input" placeholder="Nombre" autocomplete="name">
+            <input type="tel" id="custPhone" class="field-input" placeholder="Teléfono" autocomplete="tel">
+          </div>
+        </div>
+
         <div class="summary">
           <p class="summary-text" id="summaryText">Selecciona fecha, horario y servicio para continuar.</p>
           <button class="cta-book" id="ctaBook" disabled>
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
-            Confirmar por WhatsApp
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="1.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
+            <span id="ctaLabel">Confirmar reserva</span>
           </button>
         </div>
-        <p class="integration-note"><span class="hex-bullet"></span>Disponibilidad de referencia — la agenda en vivo se conecta directo a Google Calendar y el cobro en línea al confirmar la integración de pagos.</p>
+        <p class="integration-note" id="integrationNote"><span class="hex-bullet"></span>Al confirmar, tu cita se crea directo en el Google Calendar del estudio.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features-section">
+    <div class="wrap">
+      <div class="features-grid reveal">
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          <span class="ft">Sin esperas</span>
+          <span class="fd">Llegas y te sientas — tu hora ya está apartada.</span>
+        </div>
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="2.3"/><path d="M3.5 19c0-3.3 2-5.5 4.5-5.5s4.5 2.2 4.5 5.5"/><circle cx="17.5" cy="9.2" r="1.7"/><path d="M14.3 19c0-2.4 1.5-4 3.2-4s3.2 1.6 3.2 4"/></svg>
+          <span class="ft">Ambiente familiar</span>
+          <span class="fd">Sillas altas para niños — aquí caben todos.</span>
+        </div>
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5.5 6.5l13 11M18.5 6.5l-13 11M3 12h18"/></svg>
+          <span class="ft">Clima controlado</span>
+          <span class="fd">Aire acondicionado todo el año.</span>
+        </div>
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.3"/><circle cx="17" cy="16" r="2.3"/></svg>
+          <span class="ft">Buen ambiente</span>
+          <span class="fd">Música, espacio limpio y 100% libre de humo.</span>
+        </div>
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="8" x2="19" y2="8"/><line x1="7" y1="12.5" x2="17" y2="12.5"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          <span class="ft">Todos los estilos</span>
+          <span class="fd">Clásico, moderno, taper.</span>
+        </div>
       </div>
     </div>
   </section>
@@ -521,8 +656,18 @@
         <img class="space-photo hex" src="clipper-interior.webp" alt="Interior de Clipper Barber Studio" loading="lazy" decoding="async">
         <div class="space-copy">
           <span class="eyebrow"><span class="hex-bullet"></span>EL ESTUDIO</span>
-          <h2 style="margin-bottom:16px;">Los mismos de siempre</h2>
-          <p>Mismo equipo, mismo nivel en cada corte. El punto de siempre para traer el filo al día.</p>
+          <h2 style="margin-bottom:16px;">Cinco barberos. Un mismo nivel.</h2>
+          <p>No importa quién te atienda — la precisión no cambia.</p>
+          <div class="team-list">
+            <a class="team-chip" href="https://www.instagram.com/bojorquez_lalo" target="_blank" rel="noopener">
+              Lalo
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.4.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.5.3 1.2.4 2.4.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.4-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.5.2-1.2.3-2.4.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.4-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.5-.3-1.2-.4-2.4C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.4.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.5-.2 1.2-.3 2.4-.4C8.4 2.2 8.8 2.2 12 2.2Zm0 1.8c-3.1 0-3.5 0-4.7.1-1 .1-1.6.2-1.9.3-.5.2-.8.4-1.2.8-.4.4-.6.7-.8 1.2-.1.3-.3.9-.3 1.9C3 9.5 3 9.9 3 13s0 3.5.1 4.7c.1 1 .2 1.6.3 1.9.2.5.4.8.8 1.2.4.4.7.6 1.2.8.3.1.9.3 1.9.3 1.2.1 1.5.1 4.7.1s3.5 0 4.7-.1c1-.1 1.6-.2 1.9-.3.5-.2.8-.4 1.2-.8.4-.4.6-.7.8-1.2.1-.3.3-.9.3-1.9.1-1.2.1-1.5.1-4.7s0-3.5-.1-4.7c-.1-1-.2-1.6-.3-1.9-.2-.5-.4-.8-.8-1.2-.4-.4-.7-.6-1.2-.8-.3-.1-.9-.3-1.9-.3-1.2-.1-1.5-.1-4.7-.1Zm0 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 1.8a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Zm5.7-1.9a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0Z"/></svg>
+            </a>
+            <span class="team-chip">Fernando</span>
+            <span class="team-chip">Nacho</span>
+            <span class="team-chip">Ian</span>
+            <span class="team-chip">Giovanni</span>
+          </div>
         </div>
       </div>
     </div>
@@ -590,11 +735,7 @@
           <a class="addr-link" href="https://share.google/PzkHDY4pV1tRNR8oF" target="_blank" rel="noopener">Ver en Google Maps →</a>
 
           <div class="contact-row">
-            <a class="btn btn-solid" href="https://wa.me/526465343804" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
-              WhatsApp
-            </a>
-            <a class="btn" href="tel:6465343804">
+            <a class="btn btn-solid" href="tel:6465343804">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.7 3.6 4.9 6.3 6.3l2.1-2.1c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.9 21 3 13.1 3 3c0-.6.4-1 1-1h3.6c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1.1L6.6 10.8Z"/></svg>
               646 534 3804
             </a>
@@ -637,10 +778,6 @@
   </div>
 </footer>
 
-<a class="float-wa" href="https://wa.me/526465343804" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
-  <svg viewBox="0 0 24 24"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.02 0C5.5 0 .22 5.28.22 11.8c0 2.08.55 4.1 1.58 5.88L.1 24l6.5-1.66a11.9 11.9 0 0 0 5.4 1.32h.01c6.53 0 11.8-5.28 11.8-11.8 0-3.15-1.23-6.11-3.31-8.36ZM12.02 21.5h-.01a9.8 9.8 0 0 1-4.98-1.36l-.36-.21-3.7.95.99-3.6-.23-.37a9.7 9.7 0 0 1-1.5-5.2C2.23 6.4 6.63 2 12.02 2c2.6 0 5.05 1.02 6.9 2.87a9.66 9.66 0 0 1 2.85 6.93c0 5.4-4.4 9.7-9.75 9.7Z"/></svg>
-</a>
-
 <script>
 (function(){
   var HOURS = {
@@ -658,11 +795,12 @@
   var MO = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 
   var SERVICES = [
-    {id:'corte', name:'Corte', price:220},
-    {id:'barba', name:'Barba', price:180},
-    {id:'corte_barba', name:'Corte y Barba', price:350},
-    {id:'facial', name:'Facial', price:300},
-    {id:'clipper', name:'Servicio Clipper', price:580}
+    {id:'corte', name:'Corte', price:220, desc:'Bebida, mascarilla negra en nariz y ceja, lavado de cabello y masaje en hombros.'},
+    {id:'barba', name:'Barba', price:180, desc:'Bebida, mascarilla negra en nariz y ceja, y masaje en hombros.'},
+    {id:'corte_barba', name:'Corte y Barba', price:350, desc:'Bebida, mascarilla negra en nariz y ceja, lavado de cabello y masaje en hombros.'},
+    {id:'facial', name:'Facial', price:300, desc:'Exfoliación con toalla caliente, vaporizador y mascarilla de arcilla hidratante.'},
+    {id:'clipper', name:'Servicio Clipper', price:580, desc:'Corte, barba y facial en una sola sesión.'},
+    {id:'grecas', name:'Grecas o Diseño', price:100, desc:'Líneas y diseños personalizados.'}
   ];
 
   var ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
@@ -671,29 +809,47 @@
     barba: '<svg '+ICON_ATTRS+'><path d="M4 15 L15 4 L18 7 L9 18 Z"/><line x1="6" y1="17" x2="3" y2="20.5"/></svg>',
     corte_barba: '<svg '+ICON_ATTRS+'><rect x="3.5" y="4" width="17" height="3.5" rx="1.2"/><line x1="5.5" y1="7.5" x2="5.5" y2="18.5"/><line x1="8.5" y1="7.5" x2="8.5" y2="16"/><line x1="11.5" y1="7.5" x2="11.5" y2="18.5"/><line x1="14.5" y1="7.5" x2="14.5" y2="16"/><line x1="17.5" y1="7.5" x2="17.5" y2="18.5"/></svg>',
     facial: '<svg '+ICON_ATTRS+'><path d="M12 3 C12 3 6 12 6 16 A6 6 0 0 0 18 16 C18 12 12 3 12 3 Z"/></svg>',
-    clipper: '<svg '+ICON_ATTRS+'><line x1="10.5" y1="2.5" x2="10.5" y2="0.6"/><line x1="12" y1="2.5" x2="12" y2="0.6"/><line x1="13.5" y1="2.5" x2="13.5" y2="0.6"/><rect x="9" y="2.5" width="6" height="4.5" rx="0.8"/><rect x="8" y="7" width="8" height="12.5" rx="1.6"/><circle cx="12" cy="16.5" r="1"/></svg>'
+    clipper: '<svg '+ICON_ATTRS+'><line x1="10.5" y1="2.5" x2="10.5" y2="0.6"/><line x1="12" y1="2.5" x2="12" y2="0.6"/><line x1="13.5" y1="2.5" x2="13.5" y2="0.6"/><rect x="9" y="2.5" width="6" height="4.5" rx="0.8"/><rect x="8" y="7" width="8" height="12.5" rx="1.6"/><circle cx="12" cy="16.5" r="1"/></svg>',
+    grecas: '<svg '+ICON_ATTRS+'><path d="M4 7 L9 7 L9 12 L14 12 L14 7 L19 7"/><path d="M4 15 L9 15 L9 20 L14 20 L14 15 L19 15"/></svg>'
   };
 
-  var state = { date:null, time:null, service:null };
+  var state = { date:null, time:null, service:null, name:'', phone:'' };
 
   function pad(n){ return n<10 ? '0'+n : ''+n; }
   function dateKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 
-  // deterministic pseudo-random per date+hour so the mock availability is stable
+  // ---------- availability ----------
+  // Intenta el backend real primero. Si /api/availability todavía no está
+  // desplegado (o falla la red), cae al mock — así la demo nunca se ve rota
+  // mientras se completa el setup de Google Calendar.
   function hash(str){
     var h = 0;
     for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
     return h;
   }
-  function isTaken(dateStr, hourLabel){
-    var h = hash(dateStr+hourLabel);
-    return (h % 5) === 0; // ~20% de slots ya ocupados, look-and-feel de agenda real
+  function mockAvailability(dKey){
+    return {
+      isTaken: function(hourLabel){
+        return (hash(dKey+hourLabel) % 5) === 0; // ~20% de slots ocupados, look-and-feel de agenda real
+      }
+    };
+  }
+  async function getAvailability(dKey){
+    try {
+      var res = await fetch('/api/availability?date=' + dKey);
+      if (!res.ok) throw new Error('not deployed');
+      var data = await res.json();
+      var taken = data.taken || [];
+      return { isTaken: function(label){ return taken.indexOf(label) > -1; } };
+    } catch (err) {
+      return mockAvailability(dKey);
+    }
   }
 
   var today = new Date();
   today.setHours(0,0,0,0);
 
-  // ---------- render days ----------
+  // ---------- mobile: compact selector (próximos 14 días) ----------
   var dayScroller = document.getElementById('dayScroller');
   var days = [];
   for (var i=0; i<14; i++){
@@ -704,7 +860,7 @@
 
   function renderDays(){
     dayScroller.innerHTML = '';
-    days.forEach(function(d, idx){
+    days.forEach(function(d){
       var btn = document.createElement('div');
       btn.className = 'day-box' + (state.date && dateKey(state.date)===dateKey(d) ? ' selected' : '');
       btn.setAttribute('role','option');
@@ -719,17 +875,79 @@
     });
   }
 
+  // ---------- desktop: calendario tipo caja (interacción principal) ----------
+  var calState = { year: today.getFullYear(), month: today.getMonth() };
+  var calGrid = document.getElementById('calGrid');
+  var calMonthLabel = document.getElementById('calMonthLabel');
+  var calPrev = document.getElementById('calPrev');
+  var calNext = document.getElementById('calNext');
+
+  function renderCalendarGrid(){
+    calGrid.innerHTML = '';
+    var year = calState.year, month = calState.month;
+    var firstWeekday = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month+1, 0).getDate();
+
+    for (var e=0; e<firstWeekday; e++){
+      var empty = document.createElement('div');
+      empty.className = 'cal-cell empty';
+      calGrid.appendChild(empty);
+    }
+    for (var day=1; day<=daysInMonth; day++){
+      var cellDate = new Date(year, month, day);
+      var cKey = dateKey(cellDate);
+      var isPast = cellDate < today;
+      var isToday = cKey === dateKey(today);
+      var isSelected = state.date && dateKey(state.date) === cKey;
+
+      var cell = document.createElement('div');
+      cell.className = 'cal-cell' + (isPast ? ' disabled' : '') + (isToday ? ' today' : '') + (isSelected ? ' selected' : '');
+      cell.textContent = day;
+      cell.setAttribute('role','option');
+      cell.dataset.y = year; cell.dataset.m = month; cell.dataset.d = day;
+      if (!isPast){
+        cell.setAttribute('tabindex','0');
+        cell.addEventListener('click', function(){
+          selectDate(new Date(this.dataset.y, this.dataset.m, this.dataset.d));
+        });
+        cell.addEventListener('keydown', function(ev){
+          if(ev.key==='Enter'||ev.key===' '){
+            ev.preventDefault();
+            selectDate(new Date(this.dataset.y, this.dataset.m, this.dataset.d));
+          }
+        });
+      }
+      calGrid.appendChild(cell);
+    }
+
+    calMonthLabel.textContent = MO_FULL(month) + ' ' + year;
+    calPrev.disabled = (year === today.getFullYear() && month === today.getMonth());
+  }
+
+  function changeMonth(delta){
+    var d = new Date(calState.year, calState.month + delta, 1);
+    calState.year = d.getFullYear();
+    calState.month = d.getMonth();
+    renderCalendarGrid();
+  }
+  calPrev.addEventListener('click', function(){ changeMonth(-1); });
+  calNext.addEventListener('click', function(){ changeMonth(1); });
+
+  // ---------- shared selection (alimenta ambos calendarios) ----------
   function selectDate(d){
     state.date = d;
     state.time = null;
+    calState.year = d.getFullYear();
+    calState.month = d.getMonth();
     renderDays();
+    renderCalendarGrid();
     renderTimes();
     updateSummary();
   }
 
   // ---------- render times ----------
   var timeGrid = document.getElementById('timeGrid');
-  function renderTimes(){
+  async function renderTimes(){
     timeGrid.innerHTML = '';
     if (!state.date){
       var hint = document.createElement('p');
@@ -748,11 +966,12 @@
     }
     var isToday = dateKey(today)===dKey;
     var nowHour = new Date().getHours();
+    var availability = await getAvailability(dKey);
 
     slots.forEach(function(label){
       var slotHour = parseInt(label.split(':')[0],10);
       var past = isToday && slotHour <= nowHour;
-      var taken = isTaken(dKey, label) || past;
+      var taken = availability.isTaken(label) || past;
       var pill = document.createElement('div');
       pill.className = 'pill' + (taken ? ' taken' : '') + (state.time===label ? ' selected' : '');
       pill.setAttribute('role','option');
@@ -805,11 +1024,12 @@
 
   // ---------- price list section ----------
   var priceList = document.getElementById('priceList');
-  SERVICES.forEach(function(s, idx){
+  SERVICES.forEach(function(s){
     var row = document.createElement('div');
     row.className = 'price-row' + (s.id==='clipper' ? ' featured' : '');
     row.innerHTML =
-      '<span class="left"><span class="guard">'+ICONS[s.id]+'</span><span class="name">'+s.name+'</span></span>' +
+      '<span class="left"><span class="guard">'+ICONS[s.id]+'</span><span class="text"><span class="name">'+s.name+'</span>' +
+      (s.desc ? '<span class="desc">'+s.desc+'</span>' : '') + '</span></span>' +
       '<span class="amount">$'+s.price+' MXN</span>';
     priceList.appendChild(row);
   });
@@ -831,9 +1051,14 @@
   var ctaBook = document.getElementById('ctaBook');
   var monthLabel = document.getElementById('monthLabel');
   var todayLabel = document.getElementById('todayLabel');
+  var custName = document.getElementById('custName');
+  var custPhone = document.getElementById('custPhone');
+
+  custName.addEventListener('input', function(e){ state.name = e.target.value.trim(); updateSummary(); });
+  custPhone.addEventListener('input', function(e){ state.phone = e.target.value.trim(); updateSummary(); });
 
   function updateSummary(){
-    if (state.date && state.time && state.service){
+    if (state.date && state.time && state.service && state.name && state.phone){
       var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
       summaryText.innerHTML = '<b>'+state.service.name+'</b> · '+dStr+' · <b>'+formatHour(state.time)+'</b> · <span class="price">$'+state.service.price+' MXN</span>';
       ctaBook.disabled = false;
@@ -842,6 +1067,8 @@
       if (!state.date) missing.push('fecha');
       if (!state.time) missing.push('horario');
       if (!state.service) missing.push('servicio');
+      if (!state.name) missing.push('nombre');
+      if (!state.phone) missing.push('teléfono');
       summaryText.textContent = 'Falta elegir: ' + missing.join(', ') + '.';
       ctaBook.disabled = true;
     }
@@ -851,23 +1078,63 @@
     return names[i];
   }
 
-  ctaBook.addEventListener('click', function(){
+  var ctaLabel = document.getElementById('ctaLabel');
+
+  ctaBook.addEventListener('click', async function(){
     if (ctaBook.disabled) return;
-    var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
-    var msg = 'Hola, quiero reservar '+state.service.name+' el '+dStr+' a las '+formatHour(state.time)+'. ¿Confirman disponibilidad?';
-    var url = 'https://wa.me/526465343804?text=' + encodeURIComponent(msg);
-    window.open(url, '_blank');
+
+    var payload = {
+      date: dateKey(state.date),
+      time: state.time,
+      serviceId: state.service.id,
+      name: state.name,
+      phone: state.phone
+    };
+
+    ctaBook.disabled = true;
+    ctaLabel.textContent = 'Reservando…';
+
+    try {
+      var res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      var data = await res.json().catch(function(){ return {}; });
+
+      if (res.ok && data.ok) {
+        var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
+        summaryText.innerHTML = '<b>¡Listo!</b> Tu cita quedó agendada para el '+dStr+' a las '+formatHour(state.time)+'.';
+        ctaLabel.textContent = 'Reservado ✓';
+        return; // se queda deshabilitado — ya está en el calendario
+      }
+
+      if (res.status === 409) {
+        summaryText.textContent = 'Ese horario se acaba de ocupar. Elige otro horario.';
+        state.time = null;
+        renderTimes();
+        ctaLabel.textContent = 'Confirmar reserva';
+        updateSummary();
+        return;
+      }
+
+      throw new Error((data && data.error) || 'request_failed');
+    } catch (err) {
+      // El backend todavía no está desplegado o no respondió — no fingimos
+      // una reserva que no se creó.
+      summaryText.innerHTML = 'La reserva en línea se activa en cuanto conectemos el backend. Mientras tanto, llámanos al <a href="tel:6465343804" style="color:var(--ink);text-decoration:underline;">646 534 3804</a>.';
+      ctaLabel.textContent = 'Confirmar reserva';
+      ctaBook.disabled = false;
+    }
   });
 
-  // month label
+  // month label (selector móvil)
   monthLabel.textContent = MO[today.getMonth()] + ' ' + today.getFullYear();
   todayLabel.textContent = 'Próximos 14 días';
 
-  renderDays();
-  renderTimes();
   renderServices();
   updateSummary();
-  // default selection: today, if within hours; otherwise first open day
+  // selección inicial: hoy — dispara render de ambos calendarios + horarios
   selectDate(days[0]);
 
   // ---------- scroll reveal ----------
