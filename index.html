@@ -166,16 +166,62 @@
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
     pointer-events:none;
   }
-  .booker-grid{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:26px;
-    min-width:0;
+  /* --- wizard: un paso por pantalla --- */
+  .wizard-head{
+    display:flex; align-items:center; gap:16px;
+    margin-bottom:30px;
   }
-  .booker-grid > div{ min-width:0; }
-  @media(min-width:900px){
-    .booker-grid{ grid-template-columns: 1.35fr 1fr; gap:32px; }
+  .wizard-back{
+    flex:none;
+    background:none; border:none; padding:4px 0;
+    font-family:'JetBrains Mono'; font-size:0.76rem; color:var(--muted);
+    visibility:hidden;
   }
+  .wizard-back.show{ visibility:visible; }
+  .wizard-back:hover{ color:var(--ink); cursor:pointer; }
+  .wizard-track{
+    flex:1; height:2px; background:var(--line); position:relative; overflow:hidden;
+  }
+  .wizard-fill{
+    height:100%; width:16.6%; background:var(--ink);
+    transition:width .35s ease;
+  }
+  .wizard-count{
+    flex:none; font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--muted-2);
+  }
+
+  .step-panels{ position:relative; min-width:0; }
+  .step-panel{ display:none; }
+  .step-panel.active{ display:block; }
+  html.js .step-panel.active.dir-fwd{ animation:stepInFwd .32s ease; }
+  html.js .step-panel.active.dir-back{ animation:stepInBack .32s ease; }
+  @keyframes stepInFwd{ from{ opacity:0; transform:translateX(18px); } to{ opacity:1; transform:translateX(0); } }
+  @keyframes stepInBack{ from{ opacity:0; transform:translateX(-18px); } to{ opacity:1; transform:translateX(0); } }
+  @media (prefers-reduced-motion: reduce){
+    html.js .step-panel.active.dir-fwd, html.js .step-panel.active.dir-back{ animation:none; }
+  }
+
+  .field-input-lg{
+    display:block; width:100%; max-width:420px;
+    background:transparent;
+    border:none; border-bottom:2px solid var(--line);
+    color:var(--ink);
+    font-family:'Archivo'; font-size:1.4rem; font-weight:400;
+    padding:14px 2px;
+  }
+  .field-input-lg::placeholder{ color:var(--muted-2); }
+  .field-input-lg:focus{ outline:none; border-bottom-color:var(--accent-dim); }
+
+  .wizard-continue{
+    margin-top:24px;
+    padding:13px 24px;
+    background:var(--ink); color:var(--bg);
+    border:none;
+    font-family:'Archivo'; font-weight:500; font-size:0.9rem;
+    transition:background .2s ease;
+  }
+  .wizard-continue:disabled{ background:var(--surface-2); color:var(--muted-2); cursor:not-allowed; }
+  .wizard-continue:not(:disabled):hover{ background:var(--accent-dim); cursor:pointer; }
 
   .step-label{
     display:flex; align-items:center; gap:10px; margin-bottom:14px;
@@ -330,35 +376,14 @@
   .svc-price{ font-family:'JetBrains Mono'; font-size:0.88rem; color:var(--muted); white-space:nowrap; }
   .svc.selected .svc-price{ color:var(--ink); }
 
-  /* --- contact fields (step 4) --- */
-  .contact-fields{ display:flex; flex-direction:column; gap:10px; max-width:480px; }
-  @media(min-width:560px){ .contact-fields{ flex-direction:row; } }
-  .field-input{
-    flex:1; width:100%;
-    background:var(--bg);
-    border:1px solid var(--line);
-    color:var(--ink);
-    font-family:'Work Sans'; font-size:0.92rem;
-    padding:13px 14px;
-    transition:border-color .15s ease;
-  }
-  .field-input::placeholder{ color:var(--muted-2); }
-  .field-input:focus{ outline:none; border-color:var(--accent-dim); }
-
-  /* --- summary bar --- */
-  .summary{
-    margin-top:24px;
-    border-top:1px solid var(--line-strong);
-    padding-top:20px;
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
-  }
-  .summary-text{ font-size:0.9rem; color:var(--muted); }
+  /* --- step 6: confirmación --- */
+  .summary-text{ font-size:1.05rem; color:var(--muted); line-height:1.6; margin-bottom:26px; max-width:44ch; }
   .summary-text b{ color:var(--ink); font-weight:600; }
   .summary-text .price{ color:var(--ink); font-family:'JetBrains Mono'; }
 
   .cta-book{
     display:inline-flex; align-items:center; gap:10px;
-    padding:14px 24px;
+    padding:15px 26px;
     background:var(--ink);
     color:var(--bg);
     font-family:'Archivo'; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; font-size:0.92rem;
@@ -370,7 +395,7 @@
   .cta-book svg{ width:18px; height:18px; }
 
   .integration-note{
-    margin-top:14px;
+    margin-top:18px;
     font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--muted-2);
     display:flex; align-items:center; gap:8px;
   }
@@ -524,14 +549,21 @@
       <div class="hero-head reveal">
         <span class="eyebrow"><span class="hex-bullet"></span>PRECISIÓN · ESTILO · CONFIANZA</span>
         <h1>¿Cuándo puedes venir?</h1>
-        <p class="sub">Elige fecha, horario y servicio. Así de simple.</p>
+        <p class="sub">Un paso a la vez. Menos de un minuto.</p>
       </div>
 
       <div class="booker reveal">
-        <div class="booker-grid">
 
-          <!-- LEFT: calendar -->
-          <div>
+        <div class="wizard-head">
+          <button type="button" class="wizard-back" id="wizardBack" aria-label="Paso anterior">‹ Atrás</button>
+          <div class="wizard-track"><div class="wizard-fill" id="wizardFill"></div></div>
+          <span class="wizard-count" id="wizardCount">1 / 6</span>
+        </div>
+
+        <div class="step-panels" id="stepPanels">
+
+          <!-- STEP 1: fecha -->
+          <div class="step-panel" data-step="1">
             <div class="step-label">
               <span class="n mono">01</span>
               <span class="t">Elige fecha</span>
@@ -560,18 +592,19 @@
             </div>
 
             <p class="hours-note">Lun–Sáb 9:00 AM–7:00 PM · Dom 10:00 AM–5:00 PM</p>
-
-            <div style="margin-top:28px;">
-              <div class="step-label">
-                <span class="n mono">02</span>
-                <span class="t">Elige horario</span>
-              </div>
-              <div class="time-grid" id="timeGrid" role="listbox" aria-label="Selecciona un horario"></div>
-            </div>
           </div>
 
-          <!-- RIGHT: services -->
-          <div>
+          <!-- STEP 2: horario -->
+          <div class="step-panel" data-step="2">
+            <div class="step-label">
+              <span class="n mono">02</span>
+              <span class="t">Elige horario</span>
+            </div>
+            <div class="time-grid" id="timeGrid" role="listbox" aria-label="Selecciona un horario"></div>
+          </div>
+
+          <!-- STEP 3: servicio -->
+          <div class="step-panel" data-step="3">
             <div class="step-label">
               <span class="n mono">03</span>
               <span class="t">Elige servicio</span>
@@ -579,27 +612,41 @@
             <div class="svc-list" id="svcList" role="listbox" aria-label="Selecciona un servicio"></div>
           </div>
 
-        </div>
-
-        <div style="margin-top:28px;">
-          <div class="step-label">
-            <span class="n mono">04</span>
-            <span class="t">Tus datos</span>
+          <!-- STEP 4: nombre -->
+          <div class="step-panel" data-step="4">
+            <div class="step-label">
+              <span class="n mono">04</span>
+              <span class="t">¿Cómo te llamas?</span>
+            </div>
+            <input type="text" id="custName" class="field-input-lg" placeholder="Tu nombre" autocomplete="name">
+            <button type="button" class="wizard-continue" id="nameContinue" disabled>Continuar</button>
           </div>
-          <div class="contact-fields">
-            <input type="text" id="custName" class="field-input" placeholder="Nombre" autocomplete="name">
-            <input type="tel" id="custPhone" class="field-input" placeholder="Teléfono" autocomplete="tel">
-          </div>
-        </div>
 
-        <div class="summary">
-          <p class="summary-text" id="summaryText">Selecciona fecha, horario y servicio para continuar.</p>
-          <button class="cta-book" id="ctaBook" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="1.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
-            <span id="ctaLabel">Confirmar reserva</span>
-          </button>
+          <!-- STEP 5: teléfono -->
+          <div class="step-panel" data-step="5">
+            <div class="step-label">
+              <span class="n mono">05</span>
+              <span class="t">¿Tu teléfono?</span>
+            </div>
+            <input type="tel" id="custPhone" class="field-input-lg" placeholder="646 000 0000" autocomplete="tel">
+            <button type="button" class="wizard-continue" id="phoneContinue" disabled>Continuar</button>
+          </div>
+
+          <!-- STEP 6: confirmar -->
+          <div class="step-panel" data-step="6">
+            <div class="step-label">
+              <span class="n mono">06</span>
+              <span class="t">Confirma tu cita</span>
+            </div>
+            <p class="summary-text" id="summaryText"></p>
+            <button class="cta-book" id="ctaBook">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="1.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
+              <span id="ctaLabel">Confirmar reserva</span>
+            </button>
+            <p class="integration-note" id="integrationNote"><span class="hex-bullet"></span>Al confirmar, tu cita se crea directo en el Google Calendar del estudio.</p>
+          </div>
+
         </div>
-        <p class="integration-note" id="integrationNote"><span class="hex-bullet"></span>Al confirmar, tu cita se crea directo en el Google Calendar del estudio.</p>
       </div>
     </div>
   </section>
@@ -933,8 +980,44 @@
   calPrev.addEventListener('click', function(){ changeMonth(-1); });
   calNext.addEventListener('click', function(){ changeMonth(1); });
 
+  // ---------- wizard: un paso por pantalla ----------
+  var TOTAL_STEPS = 6;
+  var currentStep = 1;
+  var stepPanels = document.querySelectorAll('.step-panel');
+  var wizardBack = document.getElementById('wizardBack');
+  var wizardFill = document.getElementById('wizardFill');
+  var wizardCount = document.getElementById('wizardCount');
+
+  function goToStep(n, opts){
+    opts = opts || {};
+    var dir = n > currentStep ? 'fwd' : 'back';
+    currentStep = n;
+
+    stepPanels.forEach(function(panel){
+      var isTarget = parseInt(panel.dataset.step, 10) === n;
+      panel.classList.remove('dir-fwd', 'dir-back');
+      if (isTarget) panel.classList.add(dir === 'fwd' ? 'dir-fwd' : 'dir-back');
+      panel.classList.toggle('active', isTarget);
+    });
+
+    wizardBack.classList.toggle('show', n > 1);
+    wizardFill.style.width = (n / TOTAL_STEPS * 100) + '%';
+    wizardCount.textContent = n + ' / ' + TOTAL_STEPS;
+
+    if (n === 4) setTimeout(function(){ custName.focus(); }, opts.silent ? 0 : 260);
+    if (n === 5) setTimeout(function(){ custPhone.focus(); }, opts.silent ? 0 : 260);
+
+    if (!opts.silent) {
+      var head = document.querySelector('.wizard-head');
+      if (head) head.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
+  wizardBack.addEventListener('click', function(){
+    if (currentStep > 1) goToStep(currentStep - 1);
+  });
+
   // ---------- shared selection (alimenta ambos calendarios) ----------
-  function selectDate(d){
+  function applyDateState(d){
     state.date = d;
     state.time = null;
     calState.year = d.getFullYear();
@@ -942,7 +1025,10 @@
     renderDays();
     renderCalendarGrid();
     renderTimes();
-    updateSummary();
+  }
+  function selectDate(d){
+    applyDateState(d);
+    goToStep(2);
   }
 
   // ---------- render times ----------
@@ -996,7 +1082,7 @@
   function selectTime(label){
     state.time = label;
     renderTimes();
-    updateSummary();
+    goToStep(3);
   }
 
   // ---------- render services ----------
@@ -1019,7 +1105,7 @@
   function selectService(s){
     state.service = s;
     renderServices();
-    updateSummary();
+    goToStep(4);
   }
 
   // ---------- price list section ----------
@@ -1053,25 +1139,32 @@
   var todayLabel = document.getElementById('todayLabel');
   var custName = document.getElementById('custName');
   var custPhone = document.getElementById('custPhone');
+  var nameContinue = document.getElementById('nameContinue');
+  var phoneContinue = document.getElementById('phoneContinue');
 
-  custName.addEventListener('input', function(e){ state.name = e.target.value.trim(); updateSummary(); });
-  custPhone.addEventListener('input', function(e){ state.phone = e.target.value.trim(); updateSummary(); });
+  custName.addEventListener('input', function(e){
+    state.name = e.target.value.trim();
+    nameContinue.disabled = !state.name;
+  });
+  custName.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && state.name) { e.preventDefault(); goToStep(5); }
+  });
+  nameContinue.addEventListener('click', function(){ if (state.name) goToStep(5); });
+
+  custPhone.addEventListener('input', function(e){
+    state.phone = e.target.value.trim();
+    phoneContinue.disabled = !state.phone;
+  });
+  custPhone.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && state.phone) { e.preventDefault(); updateSummary(); goToStep(6); }
+  });
+  phoneContinue.addEventListener('click', function(){
+    if (state.phone) { updateSummary(); goToStep(6); }
+  });
 
   function updateSummary(){
-    if (state.date && state.time && state.service && state.name && state.phone){
-      var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
-      summaryText.innerHTML = '<b>'+state.service.name+'</b> · '+dStr+' · <b>'+formatHour(state.time)+'</b> · <span class="price">$'+state.service.price+' MXN</span>';
-      ctaBook.disabled = false;
-    } else {
-      var missing = [];
-      if (!state.date) missing.push('fecha');
-      if (!state.time) missing.push('horario');
-      if (!state.service) missing.push('servicio');
-      if (!state.name) missing.push('nombre');
-      if (!state.phone) missing.push('teléfono');
-      summaryText.textContent = 'Falta elegir: ' + missing.join(', ') + '.';
-      ctaBook.disabled = true;
-    }
+    var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
+    summaryText.innerHTML = '<b>'+state.service.name+'</b> · '+dStr+' · <b>'+formatHour(state.time)+'</b> · <span class="price">$'+state.service.price+' MXN</span>';
   }
   function MO_FULL(i){
     var names = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -1114,7 +1207,8 @@
         state.time = null;
         renderTimes();
         ctaLabel.textContent = 'Confirmar reserva';
-        updateSummary();
+        ctaBook.disabled = false;
+        goToStep(2);
         return;
       }
 
@@ -1133,9 +1227,10 @@
   todayLabel.textContent = 'Próximos 14 días';
 
   renderServices();
-  updateSummary();
-  // selección inicial: hoy — dispara render de ambos calendarios + horarios
-  selectDate(days[0]);
+  // hoy queda pre-cargado en el calendario, pero el wizard se queda en el
+  // paso 1 hasta que la persona elija algo — no lo saltamos automáticamente
+  applyDateState(days[0]);
+  goToStep(1, { silent:true });
 
   // ---------- scroll reveal ----------
   var observer = new IntersectionObserver(function(entries){
