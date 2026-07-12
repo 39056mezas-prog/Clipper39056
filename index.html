@@ -8,7 +8,7 @@
 <link rel="icon" href="clipperlogo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0c0c0c;
@@ -28,7 +28,7 @@
   body{
     background:var(--bg);
     color:var(--ink);
-    font-family:'Work Sans', sans-serif;
+    font-family:'Archivo', sans-serif;
     font-weight:400;
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
@@ -43,7 +43,11 @@
     letter-spacing:-0.01em;
     line-height:1.08;
   }
-  .mono{font-family:'JetBrains Mono', monospace;}
+  .num{ font-variant-numeric:tabular-nums; }
+  .label{
+    font-size:0.72rem; font-weight:600; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted);
+  }
   a{color:inherit; text-decoration:none;}
   button{font-family:inherit; cursor:pointer;}
   img{max-width:100%; display:block;}
@@ -123,7 +127,7 @@
   .hero-logo{ width:clamp(108px, 30vw, 190px); margin-bottom:40px; }
   .scroll-cue{
     display:inline-flex; flex-direction:column; align-items:center; gap:8px;
-    font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.16em;
+    font-size:0.72rem; font-weight:600; letter-spacing:0.16em;
     color:var(--muted); text-transform:uppercase;
   }
   .scroll-cue .arrow{
@@ -139,144 +143,112 @@
 
   /* ================= BOOKING ================= */
   .booking-section{
-    background:var(--bg);
-    color:var(--ink);
-    padding:84px 0 100px;
-    position:relative;
-    overflow:hidden;
-    /* dentro de esta sección el esquema se invierte por completo —
-       todo lo demás (badges, pills, calendario, botones) sigue usando
-       las mismas var(--ink)/var(--bg)/var(--line)... así que se voltea
-       solo, sin reescribir cada componente */
-    --bg: #f2f1ec;
-    --surface: #ffffff;
-    --surface-2: #e7e4dd;
-    --ink: #0c0c0c;
-    --muted: #68635c;
-    --muted-2: #948f87;
-    --accent: #0c0c0c;
-    --accent-dim: #3c3934;
-    --line: rgba(12,12,12,0.10);
-    --line-strong: rgba(12,12,12,0.22);
+    padding:56px 0 64px;
+    border-bottom:1px solid var(--line);
   }
-  .booking-section .hex-watermark{
-    position:absolute; top:50%; right:-120px; z-index:0;
-    width:420px; height:485px;
-    transform:translateY(-50%);
-    border:1px solid var(--line);
-    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
-    pointer-events:none;
-  }
+  @media(min-width:720px){ .booking-section{ padding:84px 0 92px; } }
 
-  .hero-head{ max-width:620px; margin:0 auto 48px; text-align:center; position:relative; z-index:1; }
+  .hero-head{ max-width:560px; margin:0 auto 30px; text-align:center; }
   .eyebrow{
-    font-family:'JetBrains Mono'; font-size:0.72rem; letter-spacing:0.24em;
+    font-size:0.72rem; font-weight:600; letter-spacing:0.24em;
     color:var(--ink); margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:10px;
   }
-  .hero-head h1{ font-size:clamp(2.4rem, 6vw, 4rem); margin-bottom:16px; font-weight:300; }
-  .hero-head p.sub{ color:var(--muted); font-size:1.08rem; max-width:44ch; margin:0 auto; }
+  .hero-head h1{ font-size:clamp(1.9rem, 5vw, 2.7rem); margin-bottom:12px; font-weight:400; }
+  .hero-head p.sub{ color:var(--muted); font-size:0.98rem; max-width:40ch; margin:0 auto; }
 
-  /* wizard shell — sin tarjeta, vive directo en la sección */
+  /* wizard shell — tarjeta compacta con borde, no invertida */
   .booker{
-    position:relative; z-index:1;
-    max-width:640px;
+    max-width:520px;
     margin:0 auto;
     width:100%;
     min-width:0;
+    background:var(--surface);
+    border:1px solid var(--line-strong);
   }
 
   /* --- wizard: un paso por pantalla --- */
   .wizard-head{
-    display:flex; align-items:center; gap:16px;
-    margin-bottom:8px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
   }
+  .wizard-dots{ display:flex; gap:7px; }
+  .wdot{
+    width:6px; height:6px; border-radius:50%; flex:none;
+    background:var(--line-strong);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .wdot.done{ background:var(--muted); }
+  .wdot.current{ background:var(--ink); transform:scale(1.4); }
   .wizard-back{
     flex:none;
-    background:none; border:none; padding:4px 0;
-    font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--muted);
+    background:none; border:none; padding:2px 0;
+    font-size:0.78rem; font-weight:600; color:var(--muted);
     visibility:hidden;
   }
   .wizard-back.show{ visibility:visible; }
   .wizard-back:hover{ color:var(--ink); cursor:pointer; }
-  .wizard-track{
-    flex:1; height:2px; background:var(--line); position:relative; overflow:hidden;
-  }
-  .wizard-fill{
-    height:100%; width:16.6%; background:var(--ink);
-    transition:width .35s ease;
-  }
-  .wizard-count{
-    flex:none; font-family:'JetBrains Mono'; font-size:0.74rem; color:var(--muted-2);
-  }
 
   .step-panels{ position:relative; min-width:0; }
   .step-panel{ display:none; }
   .step-panel.active{
-    display:flex; flex-direction:column; justify-content:center; align-items:center;
-    min-height:56svh; min-height:56vh;
-    padding:44px 0;
-    text-align:center;
+    display:block;
+    padding:26px 20px 28px;
   }
-  html.js .step-panel.active.dir-fwd{ animation:stepInFwd .38s ease; }
-  html.js .step-panel.active.dir-back{ animation:stepInBack .38s ease; }
-  @keyframes stepInFwd{ from{ opacity:0; transform:translateX(24px); } to{ opacity:1; transform:translateX(0); } }
-  @keyframes stepInBack{ from{ opacity:0; transform:translateX(-24px); } to{ opacity:1; transform:translateX(0); } }
+  @media(min-width:640px){ .step-panel.active{ padding:34px 32px 36px; } }
+  html.js .step-panel.active.dir-fwd{ animation:stepInFwd .3s ease; }
+  html.js .step-panel.active.dir-back{ animation:stepInBack .3s ease; }
+  @keyframes stepInFwd{ from{ opacity:0; transform:translateX(14px); } to{ opacity:1; transform:translateX(0); } }
+  @keyframes stepInBack{ from{ opacity:0; transform:translateX(-14px); } to{ opacity:1; transform:translateX(0); } }
   @media (prefers-reduced-motion: reduce){
     html.js .step-panel.active.dir-fwd, html.js .step-panel.active.dir-back{ animation:none; }
   }
 
+  .step-eyebrow{
+    display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+  }
+  .step-q{
+    font-size:1.35rem; font-weight:500; letter-spacing:-0.01em; margin-bottom:22px;
+    line-height:1.2;
+  }
+  @media(min-width:640px){ .step-q{ font-size:1.6rem; } }
+
   .field-input-lg{
-    display:block; width:100%; max-width:420px;
-    margin:0 auto;
+    display:block; width:100%;
     background:transparent;
     border:none; border-bottom:2px solid var(--line);
     color:var(--ink);
-    text-align:center;
-    font-family:'Archivo'; font-size:clamp(1.7rem, 5vw, 2.4rem); font-weight:300;
-    padding:16px 4px;
+    font-family:'Archivo'; font-size:1.15rem; font-weight:400;
+    padding:11px 2px;
   }
+  @media(min-width:640px){ .field-input-lg{ font-size:1.3rem; } }
   .field-input-lg::placeholder{ color:var(--muted-2); }
   .field-input-lg:focus{ outline:none; border-bottom-color:var(--accent-dim); }
 
   .wizard-continue{
-    margin-top:32px;
-    padding:15px 30px;
+    margin-top:22px;
+    padding:13px 24px;
     background:var(--ink); color:var(--bg);
     border:none;
-    font-family:'Archivo'; font-weight:500; font-size:0.94rem;
+    font-weight:600; font-size:0.86rem;
     transition:background .2s ease;
   }
   .wizard-continue:disabled{ background:var(--surface-2); color:var(--muted-2); cursor:not-allowed; }
   .wizard-continue:not(:disabled):hover{ background:var(--accent-dim); cursor:pointer; }
 
-  .step-label{
-    display:flex; flex-direction:column; align-items:center; gap:14px; margin-bottom:36px;
-  }
-  .step-label .n{
-    font-family:'JetBrains Mono'; font-size:0.68rem; color:var(--muted);
-    width:28px; height:28px; flex:none;
-    display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--line-strong);
-    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
-  }
-  .step-label .t{
-    font-family:'Archivo'; letter-spacing:-0.01em;
-    font-size:clamp(1.7rem, 4.6vw, 2.5rem); font-weight:300; color:var(--ink);
-    line-height:1.15;
-  }
-
   /* --- calendar --- */
   .month-row{
     display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:14px; width:100%;
+    margin-bottom:12px; width:100%;
   }
-  .month-row .month{ font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;}
+  .month-row .month{ font-size:0.76rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;}
 
   .day-scroller{
     display:grid;
     grid-auto-flow:column;
-    grid-auto-columns:68px;
-    gap:9px;
+    grid-auto-columns:58px;
+    gap:8px;
     overflow-x:auto;
     overflow-y:hidden;
     padding-bottom:6px;
@@ -289,14 +261,14 @@
   .day-box{
     background:var(--bg);
     border:1px solid var(--line);
-    padding:12px 6px;
+    padding:9px 4px;
     text-align:center;
-    display:flex; flex-direction:column; align-items:center; gap:5px;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
     transition:border-color .15s ease, background .15s ease, transform .15s ease;
   }
-  .day-box .wd{ font-family:'JetBrains Mono'; font-size:0.64rem; color:var(--muted-2); letter-spacing:0.08em; text-transform:uppercase;}
-  .day-box .dn{ font-family:'Archivo'; font-size:1.45rem; font-weight:500; }
-  .day-box .mo{ font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--muted-2); text-transform:uppercase;}
+  .day-box .wd{ font-size:0.58rem; font-weight:600; color:var(--muted-2); letter-spacing:0.06em; text-transform:uppercase;}
+  .day-box .dn{ font-size:1.15rem; font-weight:500; font-variant-numeric:tabular-nums; }
+  .day-box .mo{ font-size:0.56rem; font-weight:600; color:var(--muted-2); text-transform:uppercase;}
   .day-box:hover{ border-color:var(--accent-dim); cursor:pointer; }
   .day-box.selected{
     background:var(--accent); border-color:var(--accent); color:var(--bg);
@@ -305,40 +277,40 @@
   .day-box.selected .wd, .day-box.selected .mo{ color:rgba(242,241,236,0.65); }
 
   /* --- box calendar (desktop primary interaction) --- */
-  .cal-desktop{ display:none; width:100%; max-width:480px; margin:0 auto; }
+  .cal-desktop{ display:none; width:100%; }
   .cal-nav{
     display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:20px;
+    margin-bottom:16px;
   }
   .cal-month-label{
-    font-family:'Archivo'; font-size:1.15rem; font-weight:500; text-transform:capitalize;
+    font-size:0.98rem; font-weight:500; text-transform:capitalize;
   }
   .cal-nav-btn{
-    width:34px; height:34px; flex:none;
+    width:28px; height:28px; flex:none;
     display:flex; align-items:center; justify-content:center;
     border:1px solid var(--line-strong);
     background:transparent; color:var(--ink);
-    font-size:1.15rem; line-height:1;
+    font-size:1rem; line-height:1;
     transition:border-color .15s ease, background .15s ease;
   }
   .cal-nav-btn:hover:not(:disabled){ border-color:var(--accent-dim); cursor:pointer; }
   .cal-nav-btn:disabled{ opacity:0.25; cursor:not-allowed; }
   .cal-weekdays{
-    display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-bottom:8px;
+    display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px;
   }
   .cal-weekdays span{
-    text-align:center; font-family:'JetBrains Mono'; font-size:0.66rem; color:var(--muted-2);
-    letter-spacing:0.06em; text-transform:uppercase;
+    text-align:center; font-size:0.62rem; font-weight:600; color:var(--muted-2);
+    letter-spacing:0.04em; text-transform:uppercase;
   }
   .cal-grid{
-    display:grid; grid-template-columns:repeat(7,1fr); gap:8px;
+    display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
   }
   .cal-cell{
     position:relative;
     aspect-ratio:1/1;
     display:flex; align-items:center; justify-content:center;
     border:1px solid var(--line);
-    font-family:'Archivo'; font-size:1.05rem; font-weight:500;
+    font-size:0.88rem; font-weight:500; font-variant-numeric:tabular-nums;
     transition:border-color .15s ease, background .15s ease;
   }
   .cal-cell.empty{ border-color:transparent; pointer-events:none; }
@@ -357,16 +329,16 @@
   }
 
   .hours-note{
-    margin-top:16px; font-size:0.8rem; color:var(--muted-2); font-family:'JetBrains Mono';
+    margin-top:14px; font-size:0.76rem; color:var(--muted-2);
   }
 
   /* --- time pills --- */
   .time-grid{
-    display:flex; flex-wrap:wrap; gap:10px; justify-content:center; width:100%;
+    display:flex; flex-wrap:wrap; gap:8px; width:100%;
   }
   .pill{
-    font-family:'JetBrains Mono'; font-size:0.95rem;
-    padding:14px 18px;
+    font-size:0.85rem; font-variant-numeric:tabular-nums;
+    padding:10px 14px;
     border:1px solid var(--line);
     background:var(--bg);
     color:var(--ink);
@@ -380,17 +352,17 @@
   .pill.taken{ opacity:0.28; text-decoration:line-through; cursor:not-allowed; }
 
   /* --- services --- */
-  .svc-list{ display:flex; flex-direction:column; gap:10px; width:100%; text-align:left; }
+  .svc-list{ display:flex; flex-direction:column; gap:8px; width:100%; text-align:left; }
   .svc{
-    display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:16px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px;
     border:1px solid var(--line);
     background:var(--bg);
     transition:border-color .15s ease;
   }
   .svc:hover{ border-color:var(--accent-dim); cursor:pointer; }
-  .svc.selected{ border-color:var(--accent); background:rgba(12,12,12,0.04); }
-  .svc-left{ display:flex; align-items:center; gap:14px; }
+  .svc.selected{ border-color:var(--accent); background:rgba(255,255,255,0.03); }
+  .svc-left{ display:flex; align-items:center; gap:12px; }
   .guard{
     width:30px; height:30px; flex:none;
     display:flex; align-items:center; justify-content:center;
@@ -400,34 +372,32 @@
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
   }
   .guard svg{ width:16px; height:16px; stroke:currentColor; }
-  .svc .guard{ width:42px; height:42px; }
-  .svc .guard svg{ width:20px; height:20px; }
-  .svc-name{ font-size:1.05rem; font-weight:500; }
-  .svc-price{ font-family:'JetBrains Mono'; font-size:0.92rem; color:var(--muted); white-space:nowrap; }
+  .svc-name{ font-size:0.94rem; font-weight:500; }
+  .svc-price{ font-size:0.86rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--muted); white-space:nowrap; }
   .svc.selected .svc-price{ color:var(--ink); }
 
   /* --- step 6: confirmación --- */
-  .summary-text{ font-size:1.3rem; color:var(--ink); line-height:1.5; margin-bottom:34px; max-width:40ch; font-weight:300; }
+  .summary-text{ font-size:1.05rem; color:var(--ink); line-height:1.5; margin-bottom:24px; font-weight:400; }
   .summary-text b{ font-weight:600; }
-  .summary-text .price{ font-family:'JetBrains Mono'; }
+  .summary-text .price{ font-variant-numeric:tabular-nums; font-weight:600; }
 
   .cta-book{
-    display:inline-flex; align-items:center; gap:10px;
-    padding:18px 34px;
+    display:inline-flex; align-items:center; gap:9px;
+    padding:15px 26px;
     background:var(--ink);
     color:var(--bg);
-    font-family:'Archivo'; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; font-size:1rem;
+    text-transform:uppercase; letter-spacing:0.04em; font-weight:600; font-size:0.86rem;
     border:none;
     transition:background .2s ease, transform .15s ease;
   }
   .cta-book:hover{ background:var(--accent-dim); transform:translateY(-1px); }
   .cta-book:disabled{ background:var(--surface-2); color:var(--muted-2); cursor:not-allowed; transform:none; }
-  .cta-book svg{ width:19px; height:19px; }
+  .cta-book svg{ width:17px; height:17px; }
 
   .integration-note{
-    margin-top:20px;
-    font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--muted-2);
-    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:16px;
+    font-size:0.74rem; color:var(--muted-2);
+    display:flex; align-items:center; gap:8px;
   }
   .integration-note .hex-bullet{ background:var(--muted-2); }
 
@@ -443,14 +413,14 @@
     display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
     background:var(--line); border:1px solid var(--line);
   }
-  @media(min-width:720px){ .features-grid{ grid-template-columns:repeat(5,1fr); } }
+  @media(min-width:720px){ .features-grid{ grid-template-columns:repeat(6,1fr); } }
   .feature-card{
     background:var(--bg);
     padding:20px 16px;
     display:flex; flex-direction:column; gap:10px;
   }
   .feature-card svg{ width:20px; height:20px; stroke:var(--ink); }
-  .feature-card .ft{ font-family:'Archivo'; font-size:0.88rem; font-weight:500; }
+  .feature-card .ft{ font-size:0.88rem; font-weight:600; }
   .feature-card .fd{ font-size:0.76rem; color:var(--muted); line-height:1.4; }
 
   /* ================= SERVICES/PRICING ================= */
@@ -472,7 +442,7 @@
   .price-row .text{ display:flex; flex-direction:column; gap:5px; padding-top:2px; }
   .price-row .name{ font-family:'Archivo'; font-size:1.05rem; font-weight:400; letter-spacing:-0.005em; }
   .price-row .desc{ font-size:0.82rem; color:var(--muted); line-height:1.5; max-width:36ch; }
-  .price-row .amount{ font-family:'JetBrains Mono'; color:var(--ink); font-size:1.05rem; white-space:nowrap; padding-top:3px; }
+  .price-row .amount{ color:var(--ink); font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; padding-top:3px; }
   .price-row.featured{ background:rgba(255,255,255,0.05); }
 
   /* ================= REVIEWS ================= */
@@ -501,8 +471,7 @@
     background:var(--line);
   }
   @media(min-width:720px){
-    .gallery-grid{ grid-template-columns:repeat(4, 1fr); }
-    .gallery-grid .g1{ grid-column:span 2; grid-row:span 2; }
+    .gallery-grid{ grid-template-columns:repeat(3, 1fr); }
   }
   .gallery-grid img{
     width:100%; height:100%; aspect-ratio:1/1;
@@ -536,7 +505,7 @@
     display:grid; grid-template-columns:1fr; gap:36px;
   }
   @media(min-width:900px){ .loc-grid{ grid-template-columns:1fr 1fr; } }
-  .loc-block h3{ font-size:0.78rem; letter-spacing:0.18em; color:var(--ink); margin-bottom:12px; font-family:'JetBrains Mono'; text-transform:uppercase; font-weight:500; }
+  .loc-block h3{ font-size:0.78rem; letter-spacing:0.18em; color:var(--ink); margin-bottom:12px; text-transform:uppercase; font-weight:600; }
   .loc-block address{ font-style:normal; color:var(--ink); line-height:1.7; font-size:1rem; }
   .loc-block .addr-link{ display:inline-block; margin-top:12px; color:var(--ink); font-size:0.88rem; border-bottom:1px solid var(--muted-2); }
 
@@ -545,7 +514,7 @@
   .hours-table tr:last-child{ border-bottom:none; }
   .hours-table td{ padding:10px 0; font-size:0.92rem; }
   .hours-table td:first-child{ color:var(--muted); }
-  .hours-table td:last-child{ text-align:right; font-family:'JetBrains Mono'; font-size:0.86rem; }
+  .hours-table td:last-child{ text-align:right; font-size:0.86rem; font-variant-numeric:tabular-nums; }
   .hours-table tr.today td{ color:var(--ink); }
   .hours-table tr.today td:first-child{ font-weight:600; }
 
@@ -564,7 +533,7 @@
   .foot-inner{
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;
   }
-  .foot-inner .fl{ font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--muted-2); letter-spacing:0.06em;}
+  .foot-inner .fl{ font-size:0.72rem; font-weight:600; color:var(--muted-2); letter-spacing:0.06em;}
   .foot-links{ display:flex; gap:18px; }
   .foot-links a{ font-size:0.82rem; color:var(--muted); }
   .foot-links a:hover{ color:var(--ink); }
@@ -589,7 +558,6 @@
 
   <!-- ============ BOOKING ============ -->
   <section class="booking-section" id="reservar">
-    <div class="hex-watermark"></div>
     <div class="wrap">
       <div class="hero-head reveal">
         <span class="eyebrow"><span class="hex-bullet"></span>PRECISIÓN · ESTILO · CONFIANZA</span>
@@ -601,18 +569,22 @@
 
         <div class="wizard-head">
           <button type="button" class="wizard-back" id="wizardBack" aria-label="Paso anterior">‹ Atrás</button>
-          <div class="wizard-track"><div class="wizard-fill" id="wizardFill"></div></div>
-          <span class="wizard-count" id="wizardCount">1 / 6</span>
+          <div class="wizard-dots" id="wizardDots">
+            <span class="wdot" data-i="1"></span>
+            <span class="wdot" data-i="2"></span>
+            <span class="wdot" data-i="3"></span>
+            <span class="wdot" data-i="4"></span>
+            <span class="wdot" data-i="5"></span>
+            <span class="wdot" data-i="6"></span>
+          </div>
         </div>
 
         <div class="step-panels" id="stepPanels">
 
           <!-- STEP 1: fecha -->
           <div class="step-panel" data-step="1">
-            <div class="step-label">
-              <span class="n mono">01</span>
-              <span class="t">¿Qué día?</span>
-            </div>
+            <span class="step-eyebrow">Paso 1 de 6</span>
+            <h3 class="step-q">¿Qué día?</h3>
 
             <!-- desktop: calendario tipo caja -->
             <div class="cal-desktop">
@@ -641,48 +613,38 @@
 
           <!-- STEP 2: horario -->
           <div class="step-panel" data-step="2">
-            <div class="step-label">
-              <span class="n mono">02</span>
-              <span class="t">¿A qué hora?</span>
-            </div>
+            <span class="step-eyebrow">Paso 2 de 6</span>
+            <h3 class="step-q">¿A qué hora?</h3>
             <div class="time-grid" id="timeGrid" role="listbox" aria-label="Selecciona un horario"></div>
           </div>
 
           <!-- STEP 3: servicio -->
           <div class="step-panel" data-step="3">
-            <div class="step-label">
-              <span class="n mono">03</span>
-              <span class="t">¿Qué te vas a hacer?</span>
-            </div>
+            <span class="step-eyebrow">Paso 3 de 6</span>
+            <h3 class="step-q">¿Qué te vas a hacer?</h3>
             <div class="svc-list" id="svcList" role="listbox" aria-label="Selecciona un servicio"></div>
           </div>
 
           <!-- STEP 4: nombre -->
           <div class="step-panel" data-step="4">
-            <div class="step-label">
-              <span class="n mono">04</span>
-              <span class="t">¿Cómo te llamas?</span>
-            </div>
+            <span class="step-eyebrow">Paso 4 de 6</span>
+            <h3 class="step-q">¿Cómo te llamas?</h3>
             <input type="text" id="custName" class="field-input-lg" placeholder="Tu nombre" autocomplete="name">
             <button type="button" class="wizard-continue" id="nameContinue" disabled>Continuar</button>
           </div>
 
           <!-- STEP 5: teléfono -->
           <div class="step-panel" data-step="5">
-            <div class="step-label">
-              <span class="n mono">05</span>
-              <span class="t">¿Tu teléfono?</span>
-            </div>
+            <span class="step-eyebrow">Paso 5 de 6</span>
+            <h3 class="step-q">¿Tu teléfono?</h3>
             <input type="tel" id="custPhone" class="field-input-lg" placeholder="646 000 0000" autocomplete="tel">
             <button type="button" class="wizard-continue" id="phoneContinue" disabled>Continuar</button>
           </div>
 
           <!-- STEP 6: confirmar -->
           <div class="step-panel" data-step="6">
-            <div class="step-label">
-              <span class="n mono">06</span>
-              <span class="t">Ya casi</span>
-            </div>
+            <span class="step-eyebrow">Paso 6 de 6</span>
+            <h3 class="step-q">Ya casi</h3>
             <p class="summary-text" id="summaryText"></p>
             <button class="cta-book" id="ctaBook">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="1.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
@@ -724,6 +686,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="8" x2="19" y2="8"/><line x1="7" y1="12.5" x2="17" y2="12.5"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
           <span class="ft">Todos los estilos</span>
           <span class="fd">Clásico, moderno, taper.</span>
+        </div>
+        <div class="feature-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span class="ft">Herramientas limpias</span>
+          <span class="fd">Todo desinfectado, siempre.</span>
         </div>
       </div>
     </div>
@@ -773,11 +740,12 @@
         <h2>Así se ve un buen corte</h2>
       </div>
       <div class="gallery-grid reveal">
-        <img class="g1" src="https://images.unsplash.com/photo-1647140655214-e4a2d914971f?fm=jpg&amp;q=75&amp;w=1200&amp;fit=crop&amp;auto=format" alt="Barbero cortando cabello con tijeras de precisión" loading="lazy" decoding="async">
-        <img src="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?fm=jpg&amp;q=75&amp;w=700&amp;fit=crop&amp;auto=format" alt="Detalle de barba recién arreglada" loading="lazy" decoding="async">
-        <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?fm=jpg&amp;q=75&amp;w=700&amp;fit=crop&amp;auto=format" alt="Silla de barbería" loading="lazy" decoding="async">
-        <img src="https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?fm=jpg&amp;q=75&amp;w=700&amp;fit=crop&amp;auto=format" alt="Clipper en acción durante un corte" loading="lazy" decoding="async">
-        <img src="https://images.unsplash.com/photo-1536520002442-39764a41e987?fm=jpg&amp;q=75&amp;w=700&amp;fit=crop&amp;auto=format" alt="Interior de barbería con luces colgantes" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1647140655214-e4a2d914971f?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Barbero cortando cabello con tijeras de precisión" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Detalle de barba recién arreglada" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Silla de barbería" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Clipper en acción durante un corte" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1536520002442-39764a41e987?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Interior de barbería con luces colgantes" loading="lazy" decoding="async">
+        <img src="https://images.unsplash.com/photo-1532710093739-9470acff878f?fm=jpg&amp;q=75&amp;w=900&amp;fit=crop&amp;auto=format" alt="Afeitado con navaja, en blanco y negro" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
@@ -864,7 +832,7 @@
       <div class="map-block reveal">
         <iframe
           class="map-frame"
-          src="https://www.google.com/maps?q=Clipper+Barber+Studio,+Av.+Delante+479,+Cuauht%C3%A9moc,+22890+Ensenada,+B.C.,+M%C3%A9xico&output=embed"
+          src="https://www.google.com/maps?q=Clipper+Barber+Studio,+Av.+Delante+479,+Cuauht%C3%A9moc,+22890+Ensenada,+B.C.,+M%C3%A9xico&t=k&output=embed"
           title="Clipper Barber Studio en Google Maps"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
@@ -1047,8 +1015,7 @@
   var currentStep = 1;
   var stepPanels = document.querySelectorAll('.step-panel');
   var wizardBack = document.getElementById('wizardBack');
-  var wizardFill = document.getElementById('wizardFill');
-  var wizardCount = document.getElementById('wizardCount');
+  var wizardDots = document.querySelectorAll('.wdot');
 
   function goToStep(n, opts){
     opts = opts || {};
@@ -1063,11 +1030,14 @@
     });
 
     wizardBack.classList.toggle('show', n > 1);
-    wizardFill.style.width = (n / TOTAL_STEPS * 100) + '%';
-    wizardCount.textContent = n + ' / ' + TOTAL_STEPS;
+    wizardDots.forEach(function(dot){
+      var i = parseInt(dot.dataset.i, 10);
+      dot.classList.toggle('done', i < n);
+      dot.classList.toggle('current', i === n);
+    });
 
-    if (n === 4) setTimeout(function(){ custName.focus(); }, opts.silent ? 0 : 260);
-    if (n === 5) setTimeout(function(){ custPhone.focus(); }, opts.silent ? 0 : 260);
+    if (n === 4) setTimeout(function(){ custName.focus(); }, opts.silent ? 0 : 220);
+    if (n === 5) setTimeout(function(){ custPhone.focus(); }, opts.silent ? 0 : 220);
 
     if (!opts.silent) {
       var head = document.querySelector('.wizard-head');
