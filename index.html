@@ -1087,11 +1087,13 @@
     var isToday = dateKey(today)===dKey;
     var nowHour = new Date().getHours();
     var availability = await getAvailability(dKey);
+    var lastSlot = slots[slots.length - 1]; // la hora de cierre — nunca se simula como ocupada
 
     slots.forEach(function(label){
       var slotHour = parseInt(label.split(':')[0],10);
       var past = isToday && slotHour <= nowHour;
-      var taken = availability.isTaken(label) || past;
+      var mockTaken = (label === lastSlot) ? false : availability.isTaken(label);
+      var taken = mockTaken || past;
       var pill = document.createElement('div');
       pill.className = 'pill' + (taken ? ' taken' : '') + (state.time===label ? ' selected' : '');
       pill.setAttribute('role','option');
