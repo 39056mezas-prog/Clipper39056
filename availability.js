@@ -44,9 +44,10 @@ module.exports = async function handler(req, res) {
     );
 
     var slots = [];
-    for (var h = hours.open; h < hours.close; h++) {
+    // la última cita puede arrancar justo a la hora de cierre
+    for (var h = hours.open; h <= hours.close; h++) {
       slots.push(h + ':00');
-      if (h < hours.close - 1) slots.push(h + ':30');
+      if (h < hours.close) slots.push(h + ':30');
     }
 
     function overlaps(aStart, aEnd, bStart, bEnd) {

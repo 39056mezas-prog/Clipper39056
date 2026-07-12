@@ -1078,9 +1078,11 @@
     var h = HOURS[wd];
     var dKey = dateKey(state.date);
     var slots = [];
-    for (var hour=h.open; hour<h.close; hour++){
+    // la última cita puede arrancar justo a la hora de cierre (ej. 7:00 PM
+    // si cierran a las 7) — por eso el bucle llega hasta h.close inclusive
+    for (var hour=h.open; hour<=h.close; hour++){
       slots.push(hour+':00');
-      if (hour < h.close - 1) slots.push(hour+':30');
+      if (hour < h.close) slots.push(hour+':30');
     }
     var isToday = dateKey(today)===dKey;
     var nowHour = new Date().getHours();

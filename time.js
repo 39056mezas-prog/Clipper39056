@@ -42,12 +42,14 @@ function slotRangeUTC(dateStr, timeStr, durationMinutes) {
   return [start.toUTC().toJSDate(), end.toUTC().toJSDate()];
 }
 
-/** Ventana [apertura, cierre) del día completo, como ISO en UTC — para la consulta freebusy */
+/** Ventana [apertura, fin de la última cita] del día, como ISO en UTC — para la consulta freebusy.
+ *  La última cita puede ARRANCAR justo a la hora de cierre, así que la
+ *  ventana se extiende por la duración de una cita para cubrirla completa. */
 function dayWindowUTC(dateStr) {
   const weekday = toZoned(dateStr, '0:00').weekday % 7; // luxon: 1=lunes..7=domingo → normaliza a 0=domingo
   const hours = HOURS[weekday];
   const open = toZoned(dateStr, hours.open + ':00');
-  const close = toZoned(dateStr, hours.close + ':00');
+  const close = toZoned(dateStr, hours.close + ':00').plus({ minutes: DEFAULT_DURATION_MINUTES });
   return { hours: hours, timeMin: open.toUTC().toISO(), timeMax: close.toUTC().toISO() };
 }
 
