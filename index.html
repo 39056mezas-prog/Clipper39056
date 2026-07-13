@@ -648,9 +648,9 @@
             <p class="summary-text" id="summaryText"></p>
             <button class="cta-book" id="ctaBook">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="1.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><path d="M8.5 14.5l2 2 4.5-4.5"/></svg>
-              <span id="ctaLabel">Confirmar reserva</span>
+              <span id="ctaLabel">Pagar y confirmar</span>
             </button>
-            <p class="integration-note" id="integrationNote"><span class="hex-bullet"></span>Al confirmar, tu cita se crea directo en el Google Calendar del estudio.</p>
+            <p class="integration-note" id="integrationNote"><span class="hex-bullet"></span>Pago seguro con Stripe. Tu cita se crea en el Google Calendar del estudio en cuanto se confirma el cobro.</p>
           </div>
 
         </div>
@@ -1221,28 +1221,26 @@
     };
 
     ctaBook.disabled = true;
-    ctaLabel.textContent = 'Reservando…';
+    ctaLabel.textContent = 'Conectando con el pago…';
 
     try {
-      var res = await fetch('/api/book', {
+      var res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       var data = await res.json().catch(function(){ return {}; });
 
-      if (res.ok && data.ok) {
-        var dStr = WD_FULL[state.date.getDay()]+' '+state.date.getDate()+' de '+MO_FULL(state.date.getMonth());
-        summaryText.innerHTML = '<b>¡Listo!</b> Tu cita quedó agendada para el '+dStr+' a las '+formatHour(state.time)+'.';
-        ctaLabel.textContent = 'Reservado ✓';
-        return; // se queda deshabilitado — ya está en el calendario
+      if (res.ok && data.url) {
+        window.location.href = data.url; // Stripe Checkout — el resto pasa allá
+        return;
       }
 
       if (res.status === 409) {
         summaryText.textContent = 'Ese horario se acaba de ocupar. Elige otro horario.';
         state.time = null;
         renderTimes();
-        ctaLabel.textContent = 'Confirmar reserva';
+        ctaLabel.textContent = 'Pagar y confirmar';
         ctaBook.disabled = false;
         goToStep(2);
         return;
@@ -1252,8 +1250,8 @@
     } catch (err) {
       // El backend todavía no está desplegado o no respondió — no fingimos
       // una reserva que no se creó.
-      summaryText.innerHTML = 'La reserva en línea se activa en cuanto conectemos el backend. Mientras tanto, llámanos al <a href="tel:6465343804" style="color:var(--ink);text-decoration:underline;">646 534 3804</a>.';
-      ctaLabel.textContent = 'Confirmar reserva';
+      summaryText.innerHTML = 'El pago en línea se activa en cuanto conectemos el backend. Mientras tanto, llámanos al <a href="tel:6465343804" style="color:var(--ink);text-decoration:underline;">646 534 3804</a>.';
+      ctaLabel.textContent = 'Pagar y confirmar';
       ctaBook.disabled = false;
     }
   });
@@ -1267,6 +1265,22 @@
   // paso 1 hasta que la persona elija algo — no lo saltamos automáticamente
   applyDateState(days[0]);
   goToStep(1, { silent:true });
+
+  // ---------- retorno desde Stripe Checkout ----------
+  // corre AL FINAL de la inicialización para que gane sobre el paso 1 por default
+  (function checkPaymentReturn(){
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('booked') === '1') {
+      goToStep(6, { silent:true });
+      summaryText.innerHTML = '<b>¡Pago confirmado!</b> Tu cita ya quedó agendada — te esperamos.';
+      ctaBook.style.display = 'none';
+      var note = document.getElementById('integrationNote');
+      if (note) note.style.display = 'none';
+    } else if (params.get('canceled') === '1') {
+      goToStep(6, { silent:true });
+      summaryText.textContent = 'El pago se canceló. Puedes intentar de nuevo cuando quieras.';
+    }
+  })();
 
   // ---------- scroll reveal ----------
   var observer = new IntersectionObserver(function(entries){

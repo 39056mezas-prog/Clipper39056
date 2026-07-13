@@ -1,44 +1,32 @@
 # Clipper Barber Studio — Backend de reservas
 
-Conecta el sitio directo a Google Calendar. Sin WhatsApp, sin cobro por
-ahora — el cliente reserva en el sitio y la cita aparece en el calendario
-del estudio al instante.
+Flujo: el cliente reserva en el sitio → paga con tarjeta (Stripe) → **solo si el pago se confirma**, se crea la cita en el Google Calendar del estudio.
 
-El `index.html` **ya está listo para esto** — llama a `/api/availability` y
-`/api/book` automáticamente. Mientras este backend no esté desplegado seguirá
-funcionando con datos de muestra (para que la demo no se vea rota); en cuanto
-lo despliegues, empieza a usar datos reales sin tocar nada del frontend.
+El `index.html` ya está conectado a esto — llama a `/api/availability` para mostrar horarios ocupados, y a `/api/checkout` al dar clic en "Pagar y confirmar". Mientras este backend no esté desplegado, el sitio sigue funcionando con datos de muestra (para que no se vea roto); en cuanto lo despliegues, usa datos reales sin tocar nada del frontend.
 
-## Qué hace
-- `GET /api/availability?date=YYYY-MM-DD` — el frontend la llama cada vez que
-  eliges un día, para saber qué horarios ya están ocupados.
-- `POST /api/book` — se llama al dar clic en "Confirmar reserva". Vuelve a
-  checar que el horario siga libre y crea el evento en Google Calendar.
+## Ya está configurado
+- **Google Calendar**: tu cuenta de servicio (`clipperstudio@clipper-studio-502219.iam.gserviceaccount.com`) ya tiene permiso de "Hacer cambios en eventos" sobre `clipperstudio646@gmail.com`.
+- **Stripe**: conectado en modo sandbox/prueba (las tarjetas reales no se cobran — usa tarjetas de prueba de Stripe como `4242 4242 4242 4242` para probar el flujo completo).
+- Todo esto ya vive en el archivo `.env` de esta carpeta.
 
-## 1. Google Calendar (el único paso obligatorio)
-1. Crea un proyecto en [Google Cloud Console](https://console.cloud.google.com).
-2. Activa la **Google Calendar API** (Biblioteca de APIs → búscala → Habilitar).
-3. Ve a *IAM y administración → Cuentas de servicio* → **Crear cuenta de servicio**.
-4. Entra a la cuenta creada → pestaña *Claves* → **Agregar clave → Crear clave nueva → JSON**. Se descarga un archivo — su contenido completo es lo que va en `GOOGLE_SERVICE_ACCOUNT_JSON`.
-5. Abre Google Calendar con la cuenta del estudio → *Configuración* del calendario que quieres usar → **Compartir con determinadas personas** → agrega el correo de la cuenta de servicio (algo como `xxx@tu-proyecto.iam.gserviceaccount.com`, lo encuentras en el JSON como `client_email`) → permiso **"Hacer cambios en eventos"**.
-6. En el mismo menú de Configuración, copia el **ID del calendario** → pégalo en `GOOGLE_CALENDAR_ID`.
+## Lo único que falta: el Webhook Secret
+Stripe necesita saber a qué URL avisarte cuando alguien paga — y esa URL solo existe una vez que el sitio esté desplegado. Por eso este es el único paso pendiente:
 
-Con esto YA funciona — un solo calendario para todo el estudio.
+1. Despliega esta carpeta + el sitio (ver "Desplegar" abajo).
+2. En el Dashboard de Stripe → **Desarrolladores → Webhooks → Agregar endpoint**.
+3. URL del endpoint: `https://tu-dominio.vercel.app/api/webhook`
+4. Evento a escuchar: `checkout.session.completed`.
+5. Copia el **Signing secret** (empieza con `whsec_...`) y pégalo en `STRIPE_WEBHOOK_SECRET` — tanto en tu `.env` local como en Vercel → Settings → Environment Variables.
 
-### Cuando quieras un calendario por barbero
-Repite el paso 5 y 6 con el calendario personal de cada barbero (Lalo,
-Fernando, Nacho, Ian, Giovanni), y descomenta/llena sus líneas en
-`lib/barbers.js` con su `calendarId`. En cuanto haya al menos uno ahí, el
-sistema deja de usar `GOOGLE_CALENDAR_ID` y revisa los calendarios
-individuales — no hay que tocar nada más.
+Sin este paso, el pago se procesa pero la cita nunca se crea (Stripe no puede avisarle al sitio que ya cobró). Es la última pieza.
 
-## 2. Variables de entorno
-Copia `.env.example` a `.env` y llena los valores para probar en local, o
-agrégalas directo en Vercel → tu proyecto → Settings → Environment Variables.
+## Qué hace cada endpoint
+- `GET /api/availability?date=YYYY-MM-DD` — el frontend la llama cada vez que eliges un día, para saber qué horarios ya están ocupados.
+- `POST /api/checkout` — se llama al dar clic en "Pagar y confirmar". Crea una sesión de pago en Stripe y regresa la URL a la que el sitio redirige. **No toca el calendario todavía.**
+- `POST /api/webhook` — Stripe llama aquí cuando el pago se completa. Aquí (y solo aquí) se crea el evento en Google Calendar, después de volver a checar que el horario siga libre.
 
-## 3. Desplegar
-Sube esta carpeta AL MISMO repositorio donde ya está `index.html` (las
-funciones van en `/api`, quedan junto al sitio, no en un repo aparte):
+## Desplegar
+Sube esta carpeta AL MISMO repositorio donde ya está `index.html` (las funciones van en `/api`, quedan junto al sitio):
 
 ```
 tu-repo/
@@ -48,7 +36,8 @@ tu-repo/
   clipper-interior.webp
   api/
     availability.js
-    book.js
+    checkout.js
+    webhook.js
   lib/
     barbers.js
     googleCalendar.js
@@ -56,26 +45,17 @@ tu-repo/
   package.json
 ```
 
-Luego, en [vercel.com](https://vercel.com), conecta el repositorio. Vercel
-detecta `/api/*.js` como funciones automáticamente — no necesitas configurar
-nada extra, solo las variables de entorno del paso 2.
+Luego, en vercel.com, conecta el repositorio. Vercel detecta `/api/*.js` automáticamente como funciones — no necesitas configurar nada extra, solo pega las variables de entorno (todas están ya en tu `.env`, cópialas a Vercel → Settings → Environment Variables) y agrega `SITE_URL` con el dominio real una vez que Vercel te lo asigne.
+
+## ⚠️ Seguridad — antes de subir a GitHub
+- El archivo `.env` **tiene credenciales reales** (la llave privada de Google y tu llave secreta de Stripe). `.gitignore` ya lo excluye, pero verifica que nunca aparezca en `git status` antes de hacer commit.
+- Nunca pegues `STRIPE_SECRET_KEY` ni `GOOGLE_SERVICE_ACCOUNT_JSON` en ningún archivo que vaya al navegador (`index.html`, o cualquier `.js` fuera de `/api` y `/lib`). Ya verifiqué que no hay ninguna referencia ahí.
+- Cuando quieras cobrar de verdad, cambias `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` por las versiones "live" (no "test") desde el mismo Dashboard de Stripe, con el toggle "Test mode" apagado.
+
+## Cuando quieras un calendario por barbero
+Por ahora todo el estudio comparte un solo calendario (`GOOGLE_CALENDAR_ID`). Cuando quieras que cada barbero (Lalo, Fernando, Nacho, Ian, Giovanni) tenga el suyo: comparte su calendario personal con la misma cuenta de servicio, copia su Calendar ID, y agrégalo en `lib/barbers.js`. En cuanto haya uno ahí, el sistema deja de usar el calendario general automáticamente.
 
 ## Pendientes conocidos
-- **Duración de la cita**: asumí 45 minutos parejo para todos los servicios
-  (`DEFAULT_DURATION_MINUTES` en `lib/time.js`). Si algunos servicios duran
-  más o menos, dime y lo ajusto por servicio.
-- **Zona horaria**: ya está resuelta con `America/Tijuana` explícito en
-  `lib/time.js` (usa la librería `luxon`, no matemática de horario de verano
-  a mano) — no debería dar problemas, pero es lo primero que probaría si
-  algún horario se ve corrido.
-- **Pago en línea**: no está conectado — se puede agregar Stripe después
-  (checkout antes de crear el evento) si en algún momento lo quieren.
-  Ahorita la reserva se crea directo, sin cobro.
-- **Elegir barbero específico**: el backend ya soporta `?barber=slug` /
-  `barberSlug`, pero el frontend todavía no tiene ese paso en el flujo de
-  reserva — reserva "sin preferencia" y el sistema ofrece cualquier barbero
-  libre. Puedo agregar el selector cuando quieras.
-- **Confirmación al cliente**: como no se pide correo, el cliente no recibe
-  invitación automática de Calendar. Si agregamos un campo de email, se
-  puede activar (`attendees` en `lib/googleCalendar.js`) y le llega la
-  confirmación solo.
+- **Duración de la cita**: 45 minutos parejo para todos los servicios (`DEFAULT_DURATION_MINUTES` en `lib/time.js`). Dime si algunos servicios necesitan más/menos tiempo y lo ajusto por servicio.
+- **Sin disponibilidad al momento de pagar** (caso raro: alguien más agarró el horario entre el checkout y el pago): por ahora solo se registra en el log del servidor. Hay un TODO marcado en `webhook.js` para reembolsar automáticamente y avisar al negocio — dime si lo quieres activo.
+- **Elegir barbero específico**: el backend ya soporta `barberSlug`, pero el frontend todavía reserva "sin preferencia". Puedo agregar ese paso cuando quieras.
